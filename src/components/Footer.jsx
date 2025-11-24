@@ -1,3 +1,5 @@
+// src/components/Footer.jsx
+
 import {Link} from 'react-router-dom';
 
 

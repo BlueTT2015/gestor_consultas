@@ -1,3 +1,5 @@
+// src/pages/Register.jsx
+
 export default function Register() {
     return (
         <>

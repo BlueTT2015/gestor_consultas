@@ -1,3 +1,5 @@
+// src/pages/ForgotPassword.jsx
+
 export default function ForgotPassword() {
     return (
         <>
