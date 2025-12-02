@@ -33,7 +33,7 @@ export default function DoctorsPage() {
 
             <table className="w-full border-collapse">
                 <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-500">
                     <th className="border p-2">ID</th>
                     <th className="border p-2">Licença</th>
                     <th className="border p-2">Bio</th>
