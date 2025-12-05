@@ -42,7 +42,7 @@ export default function App() {
 
 
                     <Route path="/doctors" element={<Doctors />} />
-                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} /> {/* Rota para o perfil público */}
+                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} />
                     <Route path="/doctor/me" element={<DoctorProfile/>} />
                     <Route path="/client/me" element={<PerfilClient />} />
                     <Route path="/clinics" element={<Clinics />} />

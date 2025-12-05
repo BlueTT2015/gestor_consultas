@@ -89,7 +89,7 @@ export default function ClinicDoctors() {
                     return {
                         ...doctor,
                         association_data: association,
-                        user_data: isDoctor ? user : null,
+                        user_data: user,
                         full_name: isDoctor
                             ? `${user.first_name} ${user.last_name}`
                             : `Médico #${association.doctor_id}`,

@@ -98,6 +98,12 @@ export default function DoctorProfile() {
         return name.substring(0, 2).toUpperCase();
     };
 
+    // NOVA FUNÇÃO: Lida com a navegação para marcar consulta
+    const handleBookAppointment = () => {
+        navigate('/consulta', { state: { doctorId: doctorId } });
+    };
+
+
     if (loading) return (
         <div className="min-h-screen p-6" style={{ backgroundColor: colors.background }}>
             <Card variant="light" className="max-w-4xl mx-auto h-96">
@@ -193,9 +199,9 @@ export default function DoctorProfile() {
                                     {doctor.bio || "Médico dedicado ao cuidado integral dos pacientes."}
                                 </p>
 
-                                {/* Botão Marcar Consulta */}
+                                {/* Botão Marcar Consulta ATUALIZADO */}
                                 <button
-                                    onClick={() => navigate('/consulta')}
+                                    onClick={handleBookAppointment} // Chama a nova função
                                     className="flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3 rounded-lg text-lg font-semibold transition-colors shadow-lg"
                                     style={{
                                         backgroundColor: colors.primary,
