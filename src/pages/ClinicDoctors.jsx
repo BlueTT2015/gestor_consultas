@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
     Award,
-    Shield,
     Star,
     Mail,
     Stethoscope,
@@ -12,7 +11,6 @@ import {
     MapPin,
     Phone,
     Navigation,
-    Calendar,
     DollarSign
 } from 'lucide-react';
 import Card from "../components/Card";
@@ -44,10 +42,35 @@ export default function ClinicDoctors() {
             try {
                 setLoading(true);
 
-                // Buscar dados da clínica
-                const clinicsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/clinics");
+                // 1. Fetch data
+                const [
+                    clinicsRes,
+                    doctorClinicsRes,
+                    doctorsRes,
+                    usersRes,
+                    docSpecialtiesRes
+                ] = await Promise.all([
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/clinics"),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-clinics"),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors"),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users"),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-specialties"), // NEW
+                ]);
+
                 if (!clinicsRes.ok) throw new Error("Falha ao carregar clínicas");
                 const clinicsData = await clinicsRes.json();
+
+                if (!doctorClinicsRes.ok) throw new Error("Falha ao carregar associações médicos-clínicas");
+                const doctorClinicsData = await doctorClinicsRes.json();
+
+                if (!doctorsRes.ok) throw new Error("Falha ao carregar médicos");
+                const doctorsData = await doctorsRes.json();
+
+                if (!usersRes.ok) throw new Error("Falha ao carregar usuários");
+                const usersData = await usersRes.json();
+
+                if (!docSpecialtiesRes.ok) throw new Error("Falha ao carregar especialidades dos médicos");
+                const docSpecialtiesData = await docSpecialtiesRes.json(); // NEW
 
                 const foundClinic = clinicsData.find(c => c.clinic_id === parseInt(clinicId));
                 if (!foundClinic) {
@@ -55,24 +78,32 @@ export default function ClinicDoctors() {
                 }
                 setClinic(foundClinic);
 
-                // Buscar associações médicos-clínicas
-                const doctorClinicsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-clinics");
-                if (!doctorClinicsRes.ok) throw new Error("Falha ao carregar associações médicos-clínicas");
-                const doctorClinicsData = await doctorClinicsRes.json();
-
                 // Filtrar apenas os médicos desta clínica
                 const clinicAssociations = doctorClinicsData.filter(dc => dc.clinic_id === parseInt(clinicId));
                 setDoctorClinics(clinicAssociations);
 
-                // Buscar todos os médicos
-                const doctorsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors");
-                if (!doctorsRes.ok) throw new Error("Falha ao carregar médicos");
-                const doctorsData = await doctorsRes.json();
+                // Mock Specialties data (AS PER ASSUMPTION)
+                const mockSpecialties = [
+                    { specialty_id: 1, name: "Cardiologia" },
+                    { specialty_id: 2, name: "Dermatologia" },
+                    { specialty_id: 3, name: "Pediatria" },
+                    { specialty_id: 4, name: "Oftalmologia" },
+                    { specialty_id: 5, name: "Neurologia" },
+                ];
+                const specialtiesMap = new Map(mockSpecialties.map(s => [s.specialty_id, s.name]));
 
-                // Buscar dados dos usuários
-                const usersRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users");
-                if (!usersRes.ok) throw new Error("Falha ao carregar usuários");
-                const usersData = await usersRes.json();
+                // Create specialty map for doctors
+                const doctorSpecialtiesMap = new Map();
+                docSpecialtiesData.forEach(ds => {
+                    if (!doctorSpecialtiesMap.has(ds.doctor_id)) {
+                        doctorSpecialtiesMap.set(ds.doctor_id, []);
+                    }
+                    const specialtyName = specialtiesMap.get(ds.specialty_id) || 'Especialista Desconhecida';
+                    doctorSpecialtiesMap.get(ds.doctor_id).push({
+                        ...ds,
+                        specialty_name: specialtyName,
+                    });
+                });
 
                 // Criar mapa de usuários
                 const userMap = {};
@@ -83,8 +114,15 @@ export default function ClinicDoctors() {
                 // Combinar dados
                 const combinedDoctors = clinicAssociations.map(association => {
                     const doctor = doctorsData.find(d => d.doctor_id === association.doctor_id);
+                    if (!doctor) return null; // Should not happen if data integrity is fine
+
                     const user = doctor ? userMap[doctor.user_id] : null;
                     const isDoctor = user && user.role === "doctor";
+                    const specialties = doctorSpecialtiesMap.get(doctor.doctor_id) || [];
+
+                    const primarySpecialty = specialties.find(s => s.is_primary) || specialties[0];
+                    const specialtyDisplay = primarySpecialty ? primarySpecialty.specialty_name : "Especialista";
+                    const yearsExperience = primarySpecialty ? primarySpecialty.years_experience : (doctor.years_experience || 0);
 
                     return {
                         ...doctor,
@@ -93,7 +131,9 @@ export default function ClinicDoctors() {
                         full_name: isDoctor
                             ? `${user.first_name} ${user.last_name}`
                             : `Médico #${association.doctor_id}`,
-                        email: isDoctor ? user.email : ''
+                        email: isDoctor ? user.email : '',
+                        specialty: specialtyDisplay, // Adiciona a especialidade
+                        years_experience: yearsExperience, // Usa anos de experiência da especialidade primária se disponível
                     };
                 }).filter(doctor => doctor !== null);
 
@@ -155,11 +195,7 @@ export default function ClinicDoctors() {
         }
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'Presente';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('pt-PT');
-    };
+    // Removido formatDate (não usado)
 
     if (loading) return (
         <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
@@ -327,7 +363,8 @@ export default function ClinicDoctors() {
                                                 <h3 className="font-bold text-lg">Dr. {doctor.full_name}</h3>
                                                 <div className="flex items-center gap-2 text-sm opacity-90">
                                                     <Stethoscope size={14} />
-                                                    <span>{doctor.specialty || "Especialista"}</span>
+                                                    {/* ATUALIZADO: Usar a especialidade combinada */}
+                                                    <span>{doctor.specialty}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -380,6 +417,7 @@ export default function ClinicDoctors() {
                                                     <Award size={16} className="text-green-500" />
                                                     <span className="text-sm font-medium text-gray-700">Experiência</span>
                                                 </div>
+                                                {/* ATUALIZADO: Usar anos de experiência combinados/prioritários */}
                                                 <p className="text-sm font-semibold text-gray-800">
                                                     {doctor.years_experience || 0} anos
                                                 </p>

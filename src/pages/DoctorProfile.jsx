@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Award, Shield, Mail, Stethoscope, User, Calendar, Phone } from 'lucide-react';
+import { Award, Shield, Mail, Stethoscope, User, Calendar, Phone, CheckCircle } from 'lucide-react';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 
@@ -19,10 +19,11 @@ export default function DoctorProfile() {
         secondary: '#2514BE',
         accent1: '#5256CB',
         accent2: '#BCB5F7',
+        accent3: '#F2721C',
         background: '#F3F7F2',
         white: '#FFFFFF',
         gray: '#6B7280',
-        accent3: '#F2721C',
+
     };
 
     useEffect(() => {
@@ -48,9 +49,38 @@ export default function DoctorProfile() {
                 const usersRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users");
                 if (!usersRes.ok) throw new Error("Falha ao carregar usuários");
                 const usersData = await usersRes.json();
-
                 const user = usersData.find(u => u.user_id === doctor.user_id && u.role === "doctor");
 
+                // 3. Fetch Specialties data (Mocked as per assumption)
+                // É necessário ter os nomes, visto que a API doctors-specialties só retorna o ID.
+                const mockSpecialties = [
+                    { specialty_id: 1, name: "Cardiologia" },
+                    { specialty_id: 2, name: "Dermatologia" },
+                    { specialty_id: 3, name: "Pediatria" },
+                    { specialty_id: 4, name: "Oftalmologia" },
+                    { specialty_id: 5, name: "Neurologia" },
+                ];
+                const specialtiesMap = new Map(mockSpecialties.map(s => [s.specialty_id, s.name]));
+
+                // 4. Fetch Doctors-Specialties data
+                const docSpecialtiesRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-specialties");
+                if (!docSpecialtiesRes.ok) throw new Error("Falha ao carregar especialidades dos médicos");
+                const docSpecialtiesData = await docSpecialtiesRes.json();
+
+                const doctorSpecialties = docSpecialtiesData
+                    .filter(ds => String(ds.doctor_id) === doctorId)
+                    .map(ds => ({
+                        ...ds,
+                        specialty_name: specialtiesMap.get(ds.specialty_id) || 'Especialista Desconhecida',
+                    }));
+
+                // Encontra a especialidade primária ou a primeira para usar como display principal
+                const primarySpecialty = doctorSpecialties.find(s => s.is_primary) || doctorSpecialties[0];
+                const specialtyDisplay = primarySpecialty ? primarySpecialty.specialty_name : (doctor.specialty || "Especialista");
+                const yearsExperience = primarySpecialty ? primarySpecialty.years_experience : (doctor.years_experience || 0);
+                const certifications = primarySpecialty ? primarySpecialty.certifications : null;
+
+                // Construção final dos dados
                 const full_name = user
                     ? `${user.first_name} ${user.last_name}`
                     : `Médico #${doctor.doctor_id}`;
@@ -61,7 +91,11 @@ export default function DoctorProfile() {
                     full_name: full_name,
                     email: user ? user.email : 'Não disponível',
                     phone: user ? user.phone : 'Não disponível',
-                    birth_date: user ? user.birth_date : null
+                    birth_date: user ? user.birth_date : null,
+                    specialties: doctorSpecialties, // Lista completa de especialidades
+                    primary_specialty_name: specialtyDisplay, // Apenas o nome para o cabeçalho
+                    years_experience: yearsExperience, // Usa anos de experiência da especialidade primária se disponível
+                    certifications: certifications, // Usa certificações da especialidade primária se disponível
                 });
 
             } catch (err) {
@@ -76,6 +110,7 @@ export default function DoctorProfile() {
         }
     }, [doctorId]);
 
+    // ... (funções getAvatarColor, getInitials, handleBookAppointment)
     const getAvatarColor = (id) => {
         const gradients = [
             `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent1} 100%)`,
@@ -102,7 +137,6 @@ export default function DoctorProfile() {
     const handleBookAppointment = () => {
         navigate('/consulta', { state: { doctorId: doctorId } });
     };
-
 
     if (loading) return (
         <div className="min-h-screen p-6" style={{ backgroundColor: colors.background }}>
@@ -138,6 +172,9 @@ export default function DoctorProfile() {
     );
 
     const doctor = doctorData;
+    // Pega o primarySpecialty das propriedades combinadas
+    // const primarySpecialty = doctor.specialties?.find(s => s.is_primary) || doctor.specialties?.[0]; // Já está no estado
+
     const hasCompleteProfile = !!doctor.user_data;
 
     return (
@@ -174,16 +211,11 @@ export default function DoctorProfile() {
                             <h1 className="text-4xl font-extrabold mt-3 text-white text-shadow-md">
                                 Dr. {doctor.full_name}
                             </h1>
-                            {hasCompleteProfile ? (
-                                <span className="text-sm text-white opacity-80 mt-1">
-                                    <Stethoscope size={14} className="inline mr-1" />
-                                    {doctor.specialty || "Especialista"}
-                                </span>
-                            ) : (
-                                <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 mt-2">
-                                    Perfil incompleto no sistema
-                                </span>
-                            )}
+                            {/* ATUALIZADO: Mostrar Especialidade Principal */}
+                            <span className="text-sm text-white opacity-80 mt-1">
+                                <Stethoscope size={14} className="inline mr-1" />
+                                {doctor.primary_specialty_name || "Especialista"}
+                            </span>
                         </div>
                     </div>
 
@@ -198,6 +230,26 @@ export default function DoctorProfile() {
                                 <p className="text-gray-700 mb-6 border-l-4 pl-4 italic" style={{borderColor: colors.primary}}>
                                     {doctor.bio || "Médico dedicado ao cuidado integral dos pacientes."}
                                 </p>
+
+                                {/* Lista de Especialidades */}
+                                {doctor.specialties && doctor.specialties.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-xl font-semibold mb-3 border-b pb-2" style={{ color: colors.accent1, borderColor: colors.accent2}}>
+                                            Especialidades
+                                        </h3>
+                                        <ul className="space-y-2">
+                                            {doctor.specialties.map((s, index) => (
+                                                <li key={index} className="flex items-center gap-2 text-gray-700">
+                                                    <CheckCircle size={16} className={s.is_primary ? "text-green-500" : "text-gray-400"} />
+                                                    <span className={`text-base ${s.is_primary ? 'font-semibold' : 'font-normal'}`}>
+                                                        {s.specialty_name} {s.is_primary ? "(Principal)" : ''}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
 
                                 {/* Botão Marcar Consulta ATUALIZADO */}
                                 <button
@@ -221,13 +273,13 @@ export default function DoctorProfile() {
                                     Detalhes Profissionais
                                 </h3>
 
-                                {/* Experiência */}
+                                {/* Experiência ATUALIZADO: Usa os anos de experiência combinados/prioritários */}
                                 <div className="flex items-center gap-4 p-2">
                                     <Award size={20} className="text-green-500 flex-shrink-0" />
                                     <div>
-                                        <p className="text-sm font-medium text-gray-600">Anos de Experiência</p>
+                                        <p className="text-sm font-medium text-gray-600">Anos de Experiência (Principal)</p>
                                         <p className="text-lg font-bold text-gray-800">
-                                            {doctor.years_experience || 0} anos
+                                            {doctor.years_experience} anos
                                         </p>
                                     </div>
                                 </div>
@@ -242,6 +294,20 @@ export default function DoctorProfile() {
                                         </p>
                                     </div>
                                 </div>
+
+                                {/* Certificações (da especialidade primária) */}
+                                {doctor.certifications && (
+                                    <div className="flex items-start gap-4 p-2 border-t pt-4">
+                                        <Shield size={20} className="text-yellow-500 flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Certificações (Primária)</p>
+                                            <p className="text-base text-gray-800">
+                                                {doctor.certifications}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
 
                                 <h3 className="text-xl font-semibold mb-3 border-b pt-4 pb-2" style={{ color: colors.accent1, borderColor: colors.accent2}}>
                                     Contactos
