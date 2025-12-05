@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Doctors from "./pages/Doctors";
-import PerfilMedico from "./pages/PerfilMedico.jsx";
+import DoctorProfile from "./pages/DoctorProfile.jsx";
 import PerfilClient from "./pages/PerfilClient.jsx";
 import Clinics from "./pages/Clinics.jsx";
 import DashboardDoctor from "./pages/DashboardDoctor.jsx";
@@ -25,6 +25,7 @@ import DashboardUser from "./pages/DashboardUser.jsx";
 import Consulta from "./pages/Consulta.jsx";
 import MedicoDisponibilidade from "./pages/MedicoDisponibilidade.jsx";
 import DashboardClinic from "./pages/DashboardClinic.jsx";
+import ClinicDoctors from "./pages/ClinicDoctors.jsx";
 
 export default function App() {
   return (
@@ -41,7 +42,7 @@ export default function App() {
 
 
               <Route path="/doctors" element={<Doctors />} />
-              <Route path="/doctor/me" element={<PerfilMedico/>} />
+              <Route path="/doctor/me" element={<DoctorProfile/>} />
               <Route path="/client/me" element={<PerfilClient />} />
               <Route path="/clinics" element={<Clinics />} />
               <Route path="/doctor/dashboard/me" element={<DashboardDoctor />} />
@@ -51,6 +52,7 @@ export default function App() {
               <Route path="/consulta" element={<Consulta/>} />
               <Route path="/doctor/avaliability" element={<MedicoDisponibilidade/>} />
               <Route path="/clinic/dashboard" element={<DashboardClinic/>} />
+              <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
