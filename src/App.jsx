@@ -28,35 +28,36 @@ import DashboardClinic from "./pages/DashboardClinic.jsx";
 import ClinicDoctors from "./pages/ClinicDoctors.jsx";
 
 export default function App() {
-  return (
-      <>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
+    return (
+        <>
+            <Routes>
+                <Route path="/" element={<MainLayout />}>
 
-              <Route path="/" index element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/forum" element={<Forum />} />
-              <Route path="/auth/login" element={<Login />} />
-              <Route path="/auth/register" element={<Register />} />
-              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/" index element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/forum" element={<Forum />} />
+                    <Route path="/auth/login" element={<Login />} />
+                    <Route path="/auth/register" element={<Register />} />
+                    <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
 
-              <Route path="/doctors" element={<Doctors />} />
-              <Route path="/doctor/me" element={<DoctorProfile/>} />
-              <Route path="/client/me" element={<PerfilClient />} />
-              <Route path="/clinics" element={<Clinics />} />
-              <Route path="/doctor/dashboard/me" element={<DashboardDoctor />} />
-              <Route path="/client/dashboard/me" element={<DashboardClient />} />
-              <Route path="/dashboard" element={<DashboardGlobal/>} />
-              <Route path="/dashboard/me" element={<DashboardUser />} />
-              <Route path="/consulta" element={<Consulta/>} />
-              <Route path="/doctor/avaliability" element={<MedicoDisponibilidade/>} />
-              <Route path="/clinic/dashboard" element={<DashboardClinic/>} />
-              <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
-          </Route>
+                    <Route path="/doctors" element={<Doctors />} />
+                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} /> {/* Rota para o perfil público */}
+                    <Route path="/doctor/me" element={<DoctorProfile/>} />
+                    <Route path="/client/me" element={<PerfilClient />} />
+                    <Route path="/clinics" element={<Clinics />} />
+                    <Route path="/doctor/dashboard/me" element={<DashboardDoctor />} />
+                    <Route path="/client/dashboard/me" element={<DashboardClient />} />
+                    <Route path="/dashboard" element={<DashboardGlobal/>} />
+                    <Route path="/dashboard/me" element={<DashboardUser />} />
+                    <Route path="/consulta" element={<Consulta/>} />
+                    <Route path="/doctor/avaliability" element={<MedicoDisponibilidade/>} />
+                    <Route path="/clinic/dashboard" element={<DashboardClinic/>} />
+                    <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
+                </Route>
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </>
-  );
+                <Route path="*" element={<NotFound />} />
+            </Routes>
+        </>
+    );
 }

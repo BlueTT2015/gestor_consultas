@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { Award, Star, Mail, Stethoscope, User } from 'lucide-react';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
+import { useNavigate } from "react-router-dom";
 
 export default function Doctors() {
+    const navigate = useNavigate();
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,7 +53,13 @@ export default function Doctors() {
                     };
                 });
 
-                setDoctors(combinedDoctors);
+                // Filtra para mostrar APENAS os doutores que estão ativos.
+                const activeDoctors = combinedDoctors.filter(doctor => {
+                    const isActive = doctor.is_active === true || String(doctor.is_active).toLowerCase() === 'true';
+                    return isActive;
+                });
+
+                setDoctors(activeDoctors);
 
             } catch (err) {
                 setError(err.message);
@@ -86,7 +94,8 @@ export default function Doctors() {
 
     const handleDoctorClick = (doctor) => {
         console.log('Médico clicado:', doctor);
-        // navigate(`/doctor/${doctor.doctor_id}`);
+        // Navega para o novo perfil
+        navigate(`/doctors/${doctor.doctor_id}`);
     };
 
     if (loading) return (

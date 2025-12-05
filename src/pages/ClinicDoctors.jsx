@@ -1,4 +1,4 @@
-// src/pages/ClinicDetails.jsx
+// src/pages/ClinicDoctors.jsx
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -97,7 +97,16 @@ export default function ClinicDoctors() {
                     };
                 }).filter(doctor => doctor !== null);
 
-                setDoctors(combinedDoctors);
+                // FILTRO: Filtrar para mostrar APENAS os doutores que estão ativos no sistema
+                const activeSystemDoctors = combinedDoctors.filter(doctor => {
+                    // Checa a atividade geral (lida com inconsistência string/boolean)
+                    const isGeneralActive = doctor.is_active === true || String(doctor.is_active).toLowerCase() === 'true';
+
+                    // O médico deve estar ativo no sistema para aparecer
+                    return isGeneralActive;
+                });
+
+                setDoctors(activeSystemDoctors);
 
             } catch (err) {
                 setError(err.message);
@@ -135,7 +144,8 @@ export default function ClinicDoctors() {
 
     const handleDoctorClick = (doctor) => {
         console.log('Médico clicado:', doctor);
-        // navigate(`/doctor/${doctor.doctor_id}`);
+        // Navega para o novo perfil
+        navigate(`/doctors/${doctor.doctor_id}`);
     };
 
     const openGoogleMaps = () => {
@@ -198,6 +208,10 @@ export default function ClinicDoctors() {
             </CardBody>
         </Card>
     );
+
+    const activeInClinicCount = doctors.filter(d =>
+        d.association_data && (d.association_data.is_active === true || d.association_data.is_active !== false)
+    ).length;
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
@@ -278,7 +292,7 @@ export default function ClinicDoctors() {
                         Médicos desta Clínica
                     </h2>
                     <p className="text-gray-600">
-                        {doctors.length} médico(s) disponível(is) para consulta
+                        {doctors.length} médico(s) ativo(s) no sistema associado(s) a esta clínica.
                     </p>
                 </div>
 
@@ -333,31 +347,21 @@ export default function ClinicDoctors() {
                                             </div>
                                         )}
 
-                                        {/* Informações específicas desta clínica */}
+                                        {/* Informações específicas desta clínica (Taxa de Consulta) */}
                                         {doctor.association_data && (
                                             <div className="p-3 rounded-lg border border-gray-200">
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <DollarSign size={14} className="text-green-500" />
-                                                            <span className="text-xs font-medium text-gray-600">Taxa de Consulta</span>
-                                                        </div>
-                                                        <p className="text-sm font-bold" style={{ color: colors.primary }}>
-                                                            €{doctor.association_data.consultation_fee}
-                                                        </p>
+                                                {/* Estrutura ajustada para ter apenas a Taxa de Consulta */}
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <DollarSign size={14} className="text-green-500" />
+                                                        <span className="text-xs font-medium text-gray-600">Taxa de Consulta</span>
                                                     </div>
-
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <Calendar size={14} className="text-blue-500" />
-                                                            <span className="text-xs font-medium text-gray-600">Desde</span>
-                                                        </div>
-                                                        <p className="text-xs text-gray-600">
-                                                            {formatDate(doctor.association_data.start_date)}
-                                                        </p>
-                                                    </div>
+                                                    <p className="text-sm font-bold" style={{ color: colors.primary }}>
+                                                        €{doctor.association_data.consultation_fee}
+                                                    </p>
                                                 </div>
 
+                                                {/* Médico Principal Tag */}
                                                 {doctor.association_data.is_primary && (
                                                     <div className="mt-2">
                             <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -368,18 +372,9 @@ export default function ClinicDoctors() {
                                             </div>
                                         )}
 
-                                        {/* Informações gerais */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <Shield size={16} className="text-blue-500" />
-                                                    <span className="text-sm font-medium text-gray-700">Licença</span>
-                                                </div>
-                                                <p className="text-xs font-mono text-gray-600">
-                                                    {doctor.license_number || "Não informada"}
-                                                </p>
-                                            </div>
-
+                                        {/* Informações gerais (Experiência) */}
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {/* Removida Licença */}
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
                                                     <Award size={16} className="text-green-500" />
@@ -391,25 +386,29 @@ export default function ClinicDoctors() {
                                             </div>
                                         </div>
 
-                                        {/* Status */}
+                                        {/* Status na Clínica */}
                                         <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                                            <div className="flex items-center gap-2">
-                                                <Star size={16} className={doctor.is_active ? "text-green-500" : "text-yellow-500"} />
-                                                <span className={`text-sm font-medium ${doctor.is_active ? "text-green-600" : "text-yellow-600"}`}>
-                          {doctor.is_active ? 'Ativo' : 'Inativo'}
-                        </span>
-                                            </div>
+                                            {(() => {
+                                                const isClinicActive = doctor.association_data && (doctor.association_data.is_active === true || doctor.association_data.is_active !== false);
+
+                                                const statusText = isClinicActive ? 'Ativo na Clínica' : 'Inativo na Clínica';
+                                                const statusColor = isClinicActive ? 'text-green-600' : 'text-yellow-600';
+                                                const iconColor = isClinicActive ? 'text-green-500' : 'text-yellow-500';
+
+                                                return (
+                                                    <div className="flex items-center gap-2">
+                                                        <Star size={16} className={iconColor} />
+                                                        <span className={`text-sm font-medium ${statusColor}`}>
+                                                            {statusText}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })()}
 
                                             {!doctor.user_data && (
                                                 <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
-                          Perfil incompleto
-                        </span>
-                                            )}
-
-                                            {doctor.association_data?.is_active === false && (
-                                                <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800">
-                          Inativo nesta clínica
-                        </span>
+                                                    Perfil incompleto
+                                                </span>
                                             )}
                                         </div>
                                     </CardBody>
@@ -430,7 +429,7 @@ export default function ClinicDoctors() {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div className="text-center">
                                             <div className="text-4xl font-bold mb-2">{doctors.length}</div>
-                                            <p className="opacity-90">Médicos na Clínica</p>
+                                            <p className="opacity-90">Médicos Associados (Ativos no Sistema)</p>
                                         </div>
 
                                         <div className="text-center">
@@ -442,7 +441,7 @@ export default function ClinicDoctors() {
 
                                         <div className="text-center">
                                             <div className="text-4xl font-bold mb-2">
-                                                {doctors.filter(d => d.association_data?.is_active !== false).length}
+                                                {activeInClinicCount}
                                             </div>
                                             <p className="opacity-90">Ativos na Clínica</p>
                                         </div>
@@ -455,9 +454,9 @@ export default function ClinicDoctors() {
                     <Card variant="info" className="max-w-2xl mx-auto">
                         <CardBody className="text-center">
                             <Stethoscope size={48} className="mx-auto mb-4" style={{ color: colors.accent1 }} />
-                            <h2 className="text-xl font-bold mb-2">Nenhum médico encontrado</h2>
+                            <h2 className="text-xl font-bold mb-2">Nenhum médico ativo encontrado</h2>
                             <p className="text-gray-600">
-                                Esta clínica não possui médicos associados no momento.
+                                Esta clínica não possui médicos ativos no sistema associados no momento.
                             </p>
                         </CardBody>
                     </Card>
