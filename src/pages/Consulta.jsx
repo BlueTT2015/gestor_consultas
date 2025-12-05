@@ -228,7 +228,7 @@ export default function Consulta() {
                             <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>
                                 Agendamento
                             </h2>
-                            <p className="text-sm text-gray-500">Passo 1 de 2</p>
+                            {/* REMOVIDO o indicador de passo (Passo 1 de 2) */}
                         </div>
                     </CardHeader>
 
@@ -311,6 +311,7 @@ export default function Consulta() {
                                         value={formData.time}
                                         onChange={handleChange}
                                         required
+                                        step="1"
                                         className="w-full p-3 border rounded-lg focus:ring-2"
                                         style={{ borderColor: colors.accent2, focusColor: colors.primary }}
                                     />
