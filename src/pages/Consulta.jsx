@@ -136,6 +136,7 @@ export default function Consulta() {
         };
 
         try {
+            // Chamada POST para o endpoint da API de appointments
             const response = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/appointments", {
                 method: 'POST',
                 headers: {

@@ -26,7 +26,7 @@ export default function Home() {
                         MedHub
                     </h1>
                     <h2 className="text-xl font-light opacity-90">
-                        Bem-vindo à **MedHub**, a plataforma onde qualquer pessoa
+                        Bem-vindo à MedHub, a plataforma onde qualquer pessoa
                         pode gerir consultas de forma simples e organizada.
                     </h2>
                 </Card>
