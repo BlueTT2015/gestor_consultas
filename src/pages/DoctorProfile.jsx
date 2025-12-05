@@ -192,7 +192,7 @@ export default function DoctorProfile() {
                 <Card variant="light" className="overflow-hidden p-0">
                     {/* Cabeçalho do Perfil com Gradiente */}
                     <div
-                        className="h-40 relative flex items-center justify-center p-6"
+                        className="h-48 relative flex items-center justify-center p-6"
                         style={{ background: getAvatarColor(doctor.doctor_id) }}
                     >
                         <div className="absolute inset-0 bg-black/20"></div>
@@ -211,11 +211,12 @@ export default function DoctorProfile() {
                             <h1 className="text-4xl font-extrabold mt-3 text-white text-shadow-md">
                                 Dr. {doctor.full_name}
                             </h1>
-                            {/* ATUALIZADO: Mostrar Especialidade Principal */}
+                            {/* REMOVIDO: Especialidade Principal (a pedido do utilizador)
                             <span className="text-sm text-white opacity-80 mt-1">
                                 <Stethoscope size={14} className="inline mr-1" />
                                 {doctor.primary_specialty_name || "Especialista"}
                             </span>
+                            */}
                         </div>
                     </div>
 
