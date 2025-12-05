@@ -1,7 +1,7 @@
 // src/pages/Doctors.jsx
 
 import { useEffect, useState } from "react";
-import { Award, Shield, Star, Mail, Stethoscope, User } from 'lucide-react';
+import { Award, Star, Mail, Stethoscope, User } from 'lucide-react';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 
@@ -179,17 +179,7 @@ export default function Doctors() {
                                 )}
 
                                 {/* Informações */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Shield size={16} className="text-blue-500" />
-                                            <span className="text-sm font-medium text-gray-700">Licença</span>
-                                        </div>
-                                        <p className="text-xs font-mono text-gray-600">
-                                            {doctor.license_number || "Não informada"}
-                                        </p>
-                                    </div>
-
+                                <div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <Award size={16} className="text-green-500" />
@@ -203,12 +193,18 @@ export default function Doctors() {
 
                                 {/* Status */}
                                 <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                                    <div className="flex items-center gap-2">
-                                        <Star size={16} className={doctor.is_active ? "text-green-500" : "text-yellow-500"} />
-                                        <span className={`text-sm font-medium ${doctor.is_active ? "text-green-600" : "text-yellow-600"}`}>
-                                            {doctor.is_active ? 'Ativo' : 'Inativo'}
-                                        </span>
-                                    </div>
+                                    {/* CORREÇÃO: Normaliza o valor para garantir que 'false' (string) seja tratado como inativo */}
+                                    {(() => {
+                                        const isActive = doctor.is_active === true || String(doctor.is_active).toLowerCase() === 'true';
+                                        return (
+                                            <div className="flex items-center gap-2">
+                                                <Star size={16} className={isActive ? "text-green-500" : "text-yellow-500"} />
+                                                <span className={`text-sm font-medium ${isActive ? "text-green-600" : "text-yellow-600"}`}>
+                                                    {isActive ? 'Ativo' : 'Inativo'}
+                                                </span>
+                                            </div>
+                                        );
+                                    })()}
                                     {!doctor.user_data && (
                                         <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
                                             Perfil incompleto
