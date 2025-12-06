@@ -1,17 +1,18 @@
-// src/pages/Appointment.jsx
-
 import { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
-import { Send, Calendar, User, Clock, Building } from 'lucide-react';
+import InputField from "../components/Forms/InputField";
+import { Send, User, Building } from 'lucide-react';
+import { colors } from "../config/colors";
+import { API_BASE } from '../utils/constants';
+import { DetailedLoadingState } from '../components/Common/LoadingState';
 
 export default function Appointment() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Obter o ID do médico da rota (se vier de DoctorProfile)
     const doctorIdFromState = location.state?.doctorId || null;
 
     const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ export default function Appointment() {
         doctor_id: doctorIdFromState || '',
         date: '',
         time: '',
-        status: 'scheduled', // ATUALIZADO: Usar 'scheduled' (valor esperado pela API)
+        status: 'scheduled',
         reason: '',
     });
     const [loading, setLoading] = useState(false);
@@ -27,14 +28,6 @@ export default function Appointment() {
     const [isError, setIsError] = useState(false);
     const [doctorName, setDoctorName] = useState("Médico Selecionado");
     const [associatedClinics, setAssociatedClinics] = useState([]);
-
-    // Paleta de cores
-    const colors = {
-        primary: '#54CC90',
-        secondary: '#2514BE',
-        background: '#F3F7F2',
-        white: '#FFFFFF',
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -45,40 +38,34 @@ export default function Appointment() {
             setLoading(true);
 
             try {
-                // 1. Fetch Doctor Details (Name)
-                const doctorsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors");
+                const doctorsRes = await fetch(`${API_BASE}/doctors`);
                 const doctorsList = await doctorsRes.json();
                 const doctor = doctorsList.find(d => String(d.doctor_id) === String(doctorIdFromState));
 
                 if (doctor) {
-                    const usersRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users");
+                    const usersRes = await fetch(`${API_BASE}/users`);
                     const usersData = await usersRes.json();
                     const user = usersData.find(u => u.user_id === doctor.user_id && u.role === "doctor");
 
                     setDoctorName(user ? `Dr. ${user.first_name} ${user.last_name}` : `Médico #${doctor.doctor_id}`);
                 }
 
-                // 2. Fetch Doctor-Clinic Associations
-                const docClinicsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-clinics");
+                const docClinicsRes = await fetch(`${API_BASE}/doctors-clinics`);
                 if (!docClinicsRes.ok) throw new Error("Falha ao carregar associações médico-clínica.");
                 const docClinicsData = await docClinicsRes.json();
 
-                // Filtrar associações pelo ID do médico
                 const clinicIds = docClinicsData
                     .filter(dc => String(dc.doctor_id) === String(doctorIdFromState))
                     .map(dc => dc.clinic_id);
 
-                // 3. Fetch All Clinics
-                const clinicsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/clinics");
+                const clinicsRes = await fetch(`${API_BASE}/clinics`);
                 if (!clinicsRes.ok) throw new Error("Falha ao carregar lista de clínicas.");
                 const allClinics = await clinicsRes.json();
 
-                // 4. Filtrar e definir o estado das clínicas
                 const filteredClinics = allClinics.filter(clinic => clinicIds.includes(clinic.clinic_id));
 
                 setAssociatedClinics(filteredClinics);
 
-                // Se houver apenas 1 clínica, pré-seleciona
                 if (filteredClinics.length === 1) {
                     setFormData(prev => ({ ...prev, clinic_id: filteredClinics[0].clinic_id }));
                 }
@@ -107,7 +94,6 @@ export default function Appointment() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // VALIDAÇÃO: Verifica os campos obrigatórios
         if (!formData.doctor_id) {
             setMessage("Por favor, selecione um médico.");
             setIsError(true);
@@ -120,27 +106,23 @@ export default function Appointment() {
             return;
         }
 
-        // As validações de 'date' e 'time' são tratadas pelo atributo 'required' no JSX.
-
         setLoading(true);
         setMessage(null);
         setIsError(false);
 
-        // Prepara os dados a enviar com todos os campos (obrigatórios e opcionais)
         const appointmentData = {
-            clinic_id: parseInt(formData.clinic_id), // Required: Integer
-            patient_id: 1, // Required: Integer (Valor simulado para o paciente logado)
-            doctor_id: parseInt(formData.doctor_id), // Required: Integer
-            date: formData.date, // Required: Date
-            time: formData.time, // Required: Time
-            duration: 60, // Optional: Integer (Valor padrão fixo)
-            status: 'scheduled', // Optional: String (Valor padrão/inicial)
-            reason: formData.reason, // Optional: String (Obrigatório no formulário para melhor UX)
+            clinic_id: parseInt(formData.clinic_id),
+            patient_id: 1,
+            doctor_id: parseInt(formData.doctor_id),
+            date: formData.date,
+            time: formData.time,
+            duration: 60,
+            status: 'scheduled',
+            reason: formData.reason,
         };
 
         try {
-            // Chamada POST para o endpoint da API de appointments
-            const response = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/appointments", {
+            const response = await fetch(`${API_BASE}/appointments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,13 +131,11 @@ export default function Appointment() {
             });
 
             if (!response.ok) {
-                // Tenta ler o erro do corpo da resposta, se possível
                 let errorDetails = `Falha ao agendar consulta. Código: ${response.status}`;
                 try {
                     const errorData = await response.json();
                     errorDetails = errorData.message || errorDetails;
                 } catch (e) {
-                    // Ignora se não for JSON
                 }
                 throw new Error(errorDetails);
             }
@@ -164,7 +144,6 @@ export default function Appointment() {
             setMessage(`Consulta agendada com sucesso! ID da Consulta: ${result.appointment_id || 'N/A'}`);
             setIsError(false);
 
-            // Limpa o formulário (mantendo doctor_id e clinic_id)
             setFormData(prev => ({
                 ...prev,
                 date: '',
@@ -181,7 +160,6 @@ export default function Appointment() {
         }
     };
 
-    // Se o médico não for fornecido, mostra uma mensagem de erro
     if (!doctorIdFromState) {
         return (
             <div className="min-h-screen py-10" style={{ backgroundColor: colors.background }}>
@@ -202,26 +180,14 @@ export default function Appointment() {
         );
     }
 
-    // Se o carregamento estiver ativo
     if (loading && associatedClinics.length === 0) {
-        return (
-            <div className="min-h-screen py-10 p-6" style={{ backgroundColor: colors.background }}>
-                <Card variant="light" className="max-w-3xl mx-auto h-96">
-                    <div className="animate-pulse flex flex-col justify-center items-center h-full">
-                        <Calendar size={48} className="mb-4" style={{ color: colors.secondary }} />
-                        <div className="h-6 rounded mb-2 w-1/3 bg-gray-200"></div>
-                        <div className="h-4 rounded w-1/4 bg-gray-200"></div>
-                    </div>
-                </Card>
-            </div>
-        );
+        return <DetailedLoadingState message="A carregar clínicas associadas..." />;
     }
 
     return (
         <div className="min-h-screen py-10" style={{ backgroundColor: colors.background }}>
             <div className="max-w-3xl mx-auto px-4">
 
-                {/* Cabeçalho */}
                 <h1 className="text-4xl font-bold mb-6 text-center" style={{ color: colors.secondary }}>
                     Marcar Nova Consulta
                 </h1>
@@ -238,7 +204,6 @@ export default function Appointment() {
                     <CardBody>
                         <form onSubmit={handleSubmit} className="space-y-6">
 
-                            {/* Informação do Médico (apenas exibição) */}
                             <div className="p-4 rounded-xl border border-gray-100 bg-gray-50">
                                 <p className="font-medium text-gray-600 mb-1">Médico:</p>
                                 <div className="flex items-center gap-3">
@@ -254,7 +219,6 @@ export default function Appointment() {
                                 />
                             </div>
 
-                            {/* Campo Clínica */}
                             <div>
                                 <label htmlFor="clinic_id" className="block text-sm font-medium text-gray-700 mb-1">
                                     Clínica *
@@ -284,62 +248,37 @@ export default function Appointment() {
                                 )}
                             </div>
 
-                            {/* Campos Data e Hora */}
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Data *
-                                    </label>
-                                    <input
-                                        type="date"
-                                        id="date"
-                                        name="date"
-                                        value={formData.date}
-                                        onChange={handleChange}
-                                        required
-                                        min={new Date().toISOString().split('T')[0]} // Data mínima hoje
-                                        className="w-full p-3 border rounded-lg focus:ring-2"
-                                        style={{ borderColor: colors.accent2, focusColor: colors.primary }}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Hora *
-                                    </label>
-                                    <input
-                                        type="time"
-                                        id="time"
-                                        name="time"
-                                        value={formData.time}
-                                        onChange={handleChange}
-                                        required
-                                        step="1"
-                                        className="w-full p-3 border rounded-lg focus:ring-2"
-                                        style={{ borderColor: colors.accent2, focusColor: colors.primary }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Campos Motivo e Duração/ID (Anteriormente visível/simulado) - Duração e ID Removidos */}
-                            <div>
-                                <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Motivo da Consulta *
-                                </label>
-                                <textarea
-                                    id="reason"
-                                    name="reason"
-                                    value={formData.reason}
+                                <InputField
+                                    id="date"
+                                    label="Data"
+                                    type="date"
+                                    value={formData.date}
                                     onChange={handleChange}
                                     required
-                                    rows="3"
-                                    placeholder="Descreva brevemente o motivo da sua consulta..."
-                                    className="w-full p-3 border rounded-lg focus:ring-2 resize-none"
-                                    style={{ borderColor: colors.accent2, focusColor: colors.primary }}
+                                    min={new Date().toISOString().split('T')[0]}
+                                />
+                                <InputField
+                                    id="time"
+                                    label="Hora"
+                                    type="time"
+                                    value={formData.time}
+                                    onChange={handleChange}
+                                    required
+                                    step="1"
                                 />
                             </div>
 
-                            {/* Mensagem de Feedback */}
+                            <InputField
+                                id="reason"
+                                label="Motivo da Consulta"
+                                type="textarea"
+                                value={formData.reason}
+                                onChange={handleChange}
+                                required
+                                placeholder="Descreva brevemente o motivo da sua consulta..."
+                            />
+
                             {message && (
                                 <Card
                                     variant={isError ? 'error' : 'success'}
@@ -350,7 +289,6 @@ export default function Appointment() {
                                 </Card>
                             )}
 
-                            {/* Botão de Submissão */}
                             <button
                                 type="submit"
                                 disabled={loading || associatedClinics.length === 0}
