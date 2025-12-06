@@ -17,10 +17,11 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Doctors from "./pages/Doctors";
 import DoctorProfile from "./pages/DoctorProfile.jsx";
 import Clinics from "./pages/Clinics.jsx";
-import DashboardGlobal from "./pages/DashboardGlobal.jsx";
-import DashboardUser from "./pages/DashboardUser.jsx";
+import DashboardGlobalConsultas from "./pages/DashboardGlobalConsultas.jsx";
+import DashboardUser from "./pages/DashboardUsers.jsx";
 import Appointment from "./pages/Appointment.jsx";
 import ClinicDoctors from "./pages/ClinicDoctors.jsx";
+import DashboardUsers from "./pages/DashboardUsers.jsx";
 
 export default function App() {
     return (
@@ -40,10 +41,11 @@ export default function App() {
                     <Route path="/doctors/:doctorId" element={<DoctorProfile/>} />
                     <Route path="/doctor/me" element={<DoctorProfile/>} />
                     <Route path="/clinics" element={<Clinics />} />
-                    <Route path="/dashboard" element={<DashboardGlobal/>} />
+                    <Route path="/dashboard-consultas" element={<DashboardGlobalConsultas/>} />
                     <Route path="/dashboard/me" element={<DashboardUser />} />
                     <Route path="/appointment" element={<Appointment/>} />
                     <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
+                    <Route path="/dashboard-users" element={<DashboardUsers />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
