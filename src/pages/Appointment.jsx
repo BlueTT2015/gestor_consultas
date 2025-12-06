@@ -19,7 +19,7 @@ export default function Appointment() {
         doctor_id: doctorIdFromState || '',
         date: '',
         time: '',
-        status: 'Agendada', // Status inicial
+        status: 'scheduled', // ATUALIZADO: Usar 'scheduled' (valor esperado pela API)
         reason: '',
     });
     const [loading, setLoading] = useState(false);
@@ -107,6 +107,7 @@ export default function Appointment() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // VALIDAÇÃO: Verifica os campos obrigatórios
         if (!formData.doctor_id) {
             setMessage("Por favor, selecione um médico.");
             setIsError(true);
@@ -119,20 +120,22 @@ export default function Appointment() {
             return;
         }
 
+        // As validações de 'date' e 'time' são tratadas pelo atributo 'required' no JSX.
+
         setLoading(true);
         setMessage(null);
         setIsError(false);
 
-        // Prepara os dados a enviar
+        // Prepara os dados a enviar com todos os campos (obrigatórios e opcionais)
         const appointmentData = {
-            clinic_id: parseInt(formData.clinic_id),
-            patient_id: 1, // Valor hardcoded para teste (era 'simulado')
-            doctor_id: parseInt(formData.doctor_id),
-            date: formData.date,
-            time: formData.time,
-            duration: 60, // Valor hardcoded para teste (era 'fixo')
-            status: formData.status,
-            reason: formData.reason,
+            clinic_id: parseInt(formData.clinic_id), // Required: Integer
+            patient_id: 1, // Required: Integer (Valor simulado para o paciente logado)
+            doctor_id: parseInt(formData.doctor_id), // Required: Integer
+            date: formData.date, // Required: Date
+            time: formData.time, // Required: Time
+            duration: 60, // Optional: Integer (Valor padrão fixo)
+            status: 'scheduled', // Optional: String (Valor padrão/inicial)
+            reason: formData.reason, // Optional: String (Obrigatório no formulário para melhor UX)
         };
 
         try {
@@ -229,7 +232,6 @@ export default function Appointment() {
                             <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>
                                 Agendamento
                             </h2>
-                            {/* REMOVIDO o indicador de passo (Passo 1 de 2) */}
                         </div>
                     </CardHeader>
 

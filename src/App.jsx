@@ -16,15 +16,10 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Doctors from "./pages/Doctors";
 import DoctorProfile from "./pages/DoctorProfile.jsx";
-import PerfilClient from "./pages/PerfilClient.jsx";
 import Clinics from "./pages/Clinics.jsx";
-import DashboardDoctor from "./pages/DashboardDoctor.jsx";
-import DashboardClient from "./pages/DashboardClient.jsx";
 import DashboardGlobal from "./pages/DashboardGlobal.jsx";
 import DashboardUser from "./pages/DashboardUser.jsx";
 import Appointment from "./pages/Appointment.jsx";
-import MedicoDisponibilidade from "./pages/MedicoDisponibilidade.jsx";
-import DashboardClinic from "./pages/DashboardClinic.jsx";
 import ClinicDoctors from "./pages/ClinicDoctors.jsx";
 
 export default function App() {
@@ -44,15 +39,10 @@ export default function App() {
                     <Route path="/doctors" element={<Doctors />} />
                     <Route path="/doctors/:doctorId" element={<DoctorProfile/>} />
                     <Route path="/doctor/me" element={<DoctorProfile/>} />
-                    <Route path="/client/me" element={<PerfilClient />} />
                     <Route path="/clinics" element={<Clinics />} />
-                    <Route path="/doctor/dashboard/me" element={<DashboardDoctor />} />
-                    <Route path="/client/dashboard/me" element={<DashboardClient />} />
                     <Route path="/dashboard" element={<DashboardGlobal/>} />
                     <Route path="/dashboard/me" element={<DashboardUser />} />
                     <Route path="/appointment" element={<Appointment/>} />
-                    <Route path="/doctor/avaliability" element={<MedicoDisponibilidade/>} />
-                    <Route path="/clinic/dashboard" element={<DashboardClinic/>} />
                     <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
                 </Route>
 
