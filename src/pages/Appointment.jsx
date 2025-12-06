@@ -1,4 +1,4 @@
-// src/pages/Consulta.jsx
+// src/pages/Appointment.jsx
 
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -7,7 +7,7 @@ import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
 import { Send, Calendar, User, Clock, Building } from 'lucide-react';
 
-export default function Consulta() {
+export default function Appointment() {
     const navigate = useNavigate();
     const location = useLocation();
 

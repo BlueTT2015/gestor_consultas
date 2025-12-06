@@ -384,10 +384,10 @@ export default function ClinicDoctors() {
                                             </div>
                                         )}
 
-                                        {/* Informações específicas desta clínica (Taxa de Consulta) */}
+                                        {/* Informações específicas desta clínica (Taxa de Appointment) */}
                                         {doctor.association_data && (
                                             <div className="p-3 rounded-lg border border-gray-200">
-                                                {/* Estrutura ajustada para ter apenas a Taxa de Consulta */}
+                                                {/* Estrutura ajustada para ter apenas a Taxa de Appointment */}
                                                 <div>
                                                     <div className="flex items-center gap-2 mb-1">
                                                         <DollarSign size={14} className="text-green-500" />

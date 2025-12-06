@@ -22,7 +22,7 @@ import DashboardDoctor from "./pages/DashboardDoctor.jsx";
 import DashboardClient from "./pages/DashboardClient.jsx";
 import DashboardGlobal from "./pages/DashboardGlobal.jsx";
 import DashboardUser from "./pages/DashboardUser.jsx";
-import Consulta from "./pages/Consulta.jsx";
+import Appointment from "./pages/Appointment.jsx";
 import MedicoDisponibilidade from "./pages/MedicoDisponibilidade.jsx";
 import DashboardClinic from "./pages/DashboardClinic.jsx";
 import ClinicDoctors from "./pages/ClinicDoctors.jsx";
@@ -50,7 +50,7 @@ export default function App() {
                     <Route path="/client/dashboard/me" element={<DashboardClient />} />
                     <Route path="/dashboard" element={<DashboardGlobal/>} />
                     <Route path="/dashboard/me" element={<DashboardUser />} />
-                    <Route path="/consulta" element={<Consulta/>} />
+                    <Route path="/appointment" element={<Appointment/>} />
                     <Route path="/doctor/avaliability" element={<MedicoDisponibilidade/>} />
                     <Route path="/clinic/dashboard" element={<DashboardClinic/>} />
                     <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
