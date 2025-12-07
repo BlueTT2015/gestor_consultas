@@ -8,7 +8,7 @@ import PageWrapper from "../components/PageWrapper";
 import { Send, Building, MapPin, Mail, Phone, ClipboardCheck, ArrowLeft } from 'lucide-react';
 import { colors } from "../config/colors";
 import { API_PAPI } from '../utils/constants';
-import { DetailedLoadingState, ErrorMessage } from '../components/Common/LoadingState';
+import { DetailedLoadingState, ErrorMessage } from '../components/common/LoadingState';
 
 export default function CreateClinic() {
     const navigate = useNavigate();
