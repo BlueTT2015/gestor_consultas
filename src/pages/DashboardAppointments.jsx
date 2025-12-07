@@ -1,4 +1,4 @@
-// src/pages/DashboardGlobalConsultas.jsx
+// src/pages/DashboardAppointments.jsx
 
 import { useEffect, useState } from "react";
 import Card from "../components/Card";
@@ -61,7 +61,7 @@ const formatDate = (dateString, timeString) => {
 };
 
 
-export default function DashboardGlobalConsultas() {
+export default function DashboardAppointments() {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

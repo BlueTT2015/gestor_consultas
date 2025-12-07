@@ -17,8 +17,7 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Doctors from "./pages/Doctors";
 import DoctorProfile from "./pages/DoctorProfile.jsx";
 import Clinics from "./pages/Clinics.jsx";
-import DashboardGlobalConsultas from "./pages/DashboardGlobalConsultas.jsx";
-import DashboardUser from "./pages/DashboardUsers.jsx";
+import DashboardAppointments from "./pages/DashboardAppointments.jsx";
 import Appointment from "./pages/Appointment.jsx";
 import ClinicDoctors from "./pages/ClinicDoctors.jsx";
 import DashboardUsers from "./pages/DashboardUsers.jsx";
@@ -27,6 +26,8 @@ import PatientAppointments from "./pages/PatientAppointments.jsx";
 import DashboardClinicStaff from "./pages/DashboardClinicStaff.jsx";
 import DashboardClinics from "./pages/DashboardClinics.jsx";
 import DashboardClinicAppointments from "./pages/DashboardClinicAppointments.jsx";
+import DashboardDoctorAppointment from "./pages/DashboardDoctorAppointment.jsx";
+
 
 export default function App() {
     return (
@@ -46,8 +47,7 @@ export default function App() {
                     <Route path="/doctors/:doctorId" element={<DoctorProfile/>} />
                     <Route path="/doctor/me" element={<DoctorProfile/>} />
                     <Route path="/clinics" element={<Clinics />} />
-                    <Route path="/dashboard-appointments" element={<DashboardGlobalConsultas/>} />
-                    <Route path="/dashboard/me" element={<DashboardUser />} />
+                    <Route path="/dashboard-appointments" element={<DashboardAppointments/>} />
                     <Route path="/appointment" element={<Appointment/>} />
                     <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
                     <Route path="/dashboard-users" element={<DashboardUsers />} />
@@ -56,6 +56,7 @@ export default function App() {
                     <Route path="/dashboard-clinic-staff/:managerId" element={<DashboardClinicStaff/>} />
                     <Route path="/dashboard-clinics" element={<DashboardClinics />} />
                     <Route path="/dashboard-clinic-appointment/:managerId" element={<DashboardClinicAppointments />} />
+                    <Route path="/dashboard-doctor-appointment/:doctorId" element={<DashboardDoctorAppointment/>} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
