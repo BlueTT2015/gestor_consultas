@@ -12,7 +12,7 @@ import { API_BASE } from "../utils/constants";
 import { SimpleLoadingState, ErrorMessage } from "../components/Common/LoadingState";
 import { formatDateDisplay } from "../utils/helpers";
 
-export default function DashboardDoctorAppointment() {
+export default function DashboardDoctorAppointments() {
     const { doctorId } = useParams(); // ID do médico (tabela 'doctors')
     const navigate = useNavigate();
     const [appointments, setAppointments] = useState([]);
@@ -78,13 +78,13 @@ export default function DashboardDoctorAppointment() {
                 const doctorUserDetails = userMap.get(currentDoctor.user_id);
                 const doctorName = doctorUserDetails?.name || `Médico #${doctorId}`;
 
+                // Apenas o nome do médico é necessário agora
                 setDoctorInfo({
                     name: doctorName,
-                    specialization: currentDoctor.specialization,
-                    clinicName: clinicMap.get(currentDoctor.clinic_id) || 'N/A'
+                    // specialization e clinicName removidos para simplificar
                 });
 
-                // 3. Filtrar e formatar consultas do médico
+                // 3. Filtrar e formatar appointments
                 const filteredAppointments = appointmentsData
                     .filter(apt => apt.doctor_id === numericDoctorId)
                     .map(apt => {
@@ -93,7 +93,7 @@ export default function DashboardDoctorAppointment() {
                         const patientDetails = userMap.get(apt.patient_id);
                         const patientName = patientDetails?.name || `Paciente #${apt.patient_id}`;
 
-                        // Obter Nome da Clínica
+                        // Obter Nome da Clínica (necessário para a tabela)
                         const clinicName = clinicMap.get(apt.clinic_id) || 'N/A';
 
                         return {
@@ -104,7 +104,7 @@ export default function DashboardDoctorAppointment() {
                         };
                     });
 
-                // Ordenar por data mais recente primeiro
+                // Ordenar por data (mais recente primeiro)
                 filteredAppointments.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 setAppointments(filteredAppointments);
@@ -134,7 +134,7 @@ export default function DashboardDoctorAppointment() {
                 ← Voltar
             </button>
 
-            {/* Cabeçalho do Dashboard */}
+            {/* Cabeçalho do Dashboard simplificado */}
             <Card variant="secondary" className="text-white text-center"
                   style={{ background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.primary} 100%)` }}>
                 <Stethoscope size={36} className="mx-auto mb-2 text-white" />
@@ -144,16 +144,13 @@ export default function DashboardDoctorAppointment() {
                 <p className="text-lg font-light opacity-90">
                     Dr(a). {doctorInfo?.name || "Médico Desconhecido"}
                 </p>
-                <div className="text-sm font-light opacity-80 mt-2 flex justify-center gap-4">
-                    <p>Especialização: {doctorInfo?.specialization || 'N/A'}</p>
-                    <p>Clínica: {doctorInfo?.clinicName || 'N/A'}</p>
-                </div>
+                {/* Especialização e Clínica foram removidas daqui */}
                 <p className="text-sm font-light opacity-80 mt-2">
                     Total de {appointments.length} consultas associadas.
                 </p>
             </Card>
 
-            {/* Tabela de Consultas */}
+            {/* Tabela de Consultas (mantida como estava) */}
             <Card variant="light" className="p-0 overflow-hidden">
                 <CardHeader spacing="none" className="p-6">
                     <h2 className="text-xl font-bold" style={{ color: colors.secondary }}>
