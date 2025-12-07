@@ -56,7 +56,7 @@ export default function CreateClinic() {
 
         const clinicData = {
             name: formData.name,
-            phone: formData.phone || "", 
+            phone: formData.phone || "",
             email: formData.email,
             location: {
                 lat: parseFloat(formData.latitude),
@@ -91,8 +91,7 @@ export default function CreateClinic() {
                 throw new Error(errorDetails);
             }
 
-            const result = await response.json();
-            setMessage(`Clínica criada com sucesso! ID: ${result.clinic_id || 'N/A'}. A redirecionar...`);
+            setMessage(`Clínica criada com sucesso! A redirecionar...`);
             setIsError(false);
 
             // Limpar formulário
