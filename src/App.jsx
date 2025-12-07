@@ -27,6 +27,7 @@ import DashboardClinicStaff from "./pages/DashboardClinicStaff.jsx";
 import DashboardClinics from "./pages/DashboardClinics.jsx";
 import DashboardClinicAppointments from "./pages/DashboardClinicAppointments.jsx";
 import DashboardDoctorAppointment from "./pages/DashboardDoctorAppointment.jsx";
+import CreateClinic from "./pages/CreateClinic.jsx";
 
 
 export default function App() {
@@ -57,6 +58,7 @@ export default function App() {
                     <Route path="/dashboard-clinics" element={<DashboardClinics />} />
                     <Route path="/dashboard-clinic-appointment/:managerId" element={<DashboardClinicAppointments />} />
                     <Route path="/dashboard-doctor-appointment/:doctorId" element={<DashboardDoctorAppointment/>} />
+                    <Route path="/create-clinic" element={<CreateClinic />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
