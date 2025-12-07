@@ -1,7 +1,7 @@
 import { Mail, Key, User, UserPlus, ArrowLeft } from 'lucide-react';
 import { colors } from "../config/colors";
-import InputField from "../components/Forms/InputField";
-import AuthWrapper from "../components/Auth/AuthWrapper";
+import InputField from "../components/forms/InputField";
+import AuthWrapper from "../components/auth/AuthWrapper";
 
 export default function Register() {
     const footerLink = {

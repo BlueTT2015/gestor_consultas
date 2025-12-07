@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Card from "../components/Card";
 import CardHeader from "../components/CardHeader";
-import StatusBadge from "../components/Common/StatusBadge";
+import StatusBadge from "../components/common/StatusBadge";
 import PageWrapper from "../components/PageWrapper";
 import { Stethoscope, Clock, CalendarCheck } from 'lucide-react';
 import { colors } from "../config/colors";
 import { API_BASE } from "../utils/constants";
-import { SimpleLoadingState, ErrorMessage } from "../components/Common/LoadingState";
+import { SimpleLoadingState, ErrorMessage } from "../components/common/LoadingState";
 import { formatDateDisplay } from "../utils/helpers";
 
 export default function DashboardDoctorAppointments() {

@@ -7,8 +7,8 @@ import { Building, MapPin, Phone, Mail } from 'lucide-react'; // 'Clock' e 'Load
 import { colors } from "../config/colors";
 import { API_BASE } from "../utils/constants";
 import { formatStatusUser } from "../utils/helpers"; // 'formatDateDisplay' removido
-import { SimpleLoadingState, ErrorMessage } from "../components/Common/LoadingState";
-import StatusBadge from "../components/Common/StatusBadge";
+import { SimpleLoadingState, ErrorMessage } from "../components/common/LoadingState";
+import StatusBadge from "../components/common/StatusBadge";
 import PageWrapper from "../components/PageWrapper";
 
 export default function DashboardClinics() {

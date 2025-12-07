@@ -6,7 +6,7 @@ import CardBody from "../components/CardBody";
 import { colors } from "../config/colors";
 import { API_BASE } from "../utils/constants";
 import { getAvatarColor, getInitials } from "../utils/helpers";
-import { DetailedLoadingState, ErrorMessage } from "../components/Common/LoadingState";
+import { DetailedLoadingState, ErrorMessage } from "../components/common/LoadingState";
 import PageWrapper from "../components/PageWrapper";
 
 export default function DoctorProfile() {

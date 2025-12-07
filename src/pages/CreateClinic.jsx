@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
-import InputField from "../components/Forms/InputField";
+import InputField from "../components/forms/InputField";
 import PageWrapper from "../components/PageWrapper";
 import { Send, Building, MapPin, Mail, Phone, ClipboardCheck, ArrowLeft } from 'lucide-react';
 import { colors } from "../config/colors";

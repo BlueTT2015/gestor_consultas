@@ -3,11 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
-import InputField from "../components/Forms/InputField";
+import InputField from "../components/forms/InputField";
 import { Send, User, Building } from 'lucide-react';
 import { colors } from "../config/colors";
 import { API_BASE } from '../utils/constants';
-import { DetailedLoadingState } from '../components/Common/LoadingState';
+import { DetailedLoadingState } from '../components/common/LoadingState';
 
 export default function Appointment() {
     const navigate = useNavigate();
