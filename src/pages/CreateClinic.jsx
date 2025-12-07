@@ -87,8 +87,8 @@ export default function CreateClinic() {
                     const errorData = await response.json();
                     errorDetails = errorData.message || errorDetails;
                 } catch (e) {
+                    throw new Error(errorDetails);
                 }
-                throw new Error(errorDetails);
             }
 
             setMessage(`Clínica criada com sucesso! A redirecionar...`);
