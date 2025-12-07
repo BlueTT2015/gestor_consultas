@@ -24,6 +24,7 @@ import ClinicDoctors from "./pages/ClinicDoctors.jsx";
 import DashboardUsers from "./pages/DashboardUsers.jsx";
 import PatientProfile from "./pages/PatientProfile.jsx";
 import PatientAppointments from "./pages/PatientAppointments.jsx";
+import DashboardClinicStaff from "./pages/DashboardClinicStaff.jsx";
 
 export default function App() {
     return (
@@ -50,6 +51,7 @@ export default function App() {
                     <Route path="/dashboard-users" element={<DashboardUsers />} />
                     <Route path="/patient/:patientId" element={<PatientProfile/>} />
                     <Route path="/patient-appointments/:patientId" element={<PatientAppointments/>} />
+                    <Route path="/dashboard-clinic-staff/:managerId" element={<DashboardClinicStaff/>} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
