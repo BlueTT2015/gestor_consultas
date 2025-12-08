@@ -1,6 +1,7 @@
 // src/pages/DashboardClinics.jsx
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // ADICIONADO
 import Card from "../components/Card";
 import CardHeader from "../components/CardHeader";
 import CardBody from "../components/CardBody"; // Import necessário para mensagens
@@ -13,6 +14,7 @@ import StatusBadge from "../components/common/StatusBadge";
 import PageWrapper from "../components/PageWrapper";
 
 export default function DashboardClinics() {
+    const navigate = useNavigate(); // ADICIONADO
     const [clinics, setClinics] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -105,6 +107,22 @@ export default function DashboardClinics() {
 
     return (
         <PageWrapper maxWidth="max-w-7xl">
+            {/* NOVO BOTÃO: Criar Nova Clínica */}
+            <div className="flex justify-end mb-6">
+                <button
+                    onClick={() => navigate('/create-clinic')}
+                    className="flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold transition-colors shadow-md hover:shadow-lg"
+                    style={{
+                        backgroundColor: colors.primary,
+                        color: colors.white,
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#45b87d'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
+                >
+                    <Building size={20} className="mr-1" />
+                    Criar Nova Clínica
+                </button>
+            </div>
             {/* Header do Dashboard */}
             <Card variant="secondary" className="text-white text-center"
                   style={{ background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.accent1} 100%)` }}>
