@@ -26,7 +26,7 @@ export default function Clinics() {
     useEffect(() => {
         const fetchClinics = async () => {
             try {
-                const response = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/clinics");
+                const response = await fetch("https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api/clinics");
                 if (!response.ok) throw new Error("Falha ao carregar clínicas");
                 const data = await response.json();
                 setClinics(data);

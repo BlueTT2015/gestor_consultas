@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
-import { Users, Loader } from 'lucide-react';
+import { Users, Trash2 } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_BASE } from "../utils/constants";
+import { API_PAPI } from "../utils/constants";
 import { formatStatusUser, formatRole, formatDateDisplay } from "../utils/helpers";
 import { SimpleLoadingState, ErrorMessage } from "../components/common/LoadingState";
 import StatusBadge from "../components/common/StatusBadge";
@@ -14,44 +14,87 @@ export default function DashboardUsers() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState(null);
+    const [isDeleteError, setIsDeleteError] = useState(false);
+
+    const fetchAllUsers = async () => {
+        try {
+            setLoading(true);
+            setDeleteMessage(null);
+
+            const response = await fetch(`${API_PAPI}/users`);
+
+            if (!response.ok) throw new Error("Falha ao carregar lista de Utilizadores");
+
+            const usersData = await response.json();
+
+            const formattedUsers = usersData.map(user => {
+                const statusDetails = formatStatusUser(user.is_active);
+                const roleDisplay = formatRole(user.role);
+                const createdAtDisplay = formatDateDisplay(user.created_at.split('T')[0], user.created_at);
+
+                return {
+                    ...user,
+                    statusDetails,
+                    roleDisplay,
+                    createdAtDisplay,
+                    fullName: `${user.first_name} ${user.last_name}`,
+                };
+            });
+
+            setUsers(formattedUsers);
+
+        } catch (err) {
+            setError(err.message);
+            console.error("Erro ao carregar dados do Dashboard de Utilizadores:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchAllUsers = async () => {
-            try {
-                setLoading(true);
-
-                const response = await fetch(`${API_BASE}/users`);
-
-                if (!response.ok) throw new Error("Falha ao carregar lista de Utilizadores");
-
-                const usersData = await response.json();
-
-                const formattedUsers = usersData.map(user => {
-                    const statusDetails = formatStatusUser(user.is_active);
-                    const roleDisplay = formatRole(user.role);
-                    const createdAtDisplay = formatDateDisplay(user.created_at.split('T')[0], user.created_at);
-
-                    return {
-                        ...user,
-                        statusDetails,
-                        roleDisplay,
-                        createdAtDisplay,
-                        fullName: `${user.first_name} ${user.last_name}`,
-                    };
-                });
-
-                setUsers(formattedUsers);
-
-            } catch (err) {
-                setError(err.message);
-                console.error("Erro ao carregar dados do Dashboard de Utilizadores:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchAllUsers();
     }, []);
+
+    const handleDeleteUser = async (userId, userName) => {
+        if (!window.confirm(`Tem a certeza que deseja eliminar o utilizador "${userName}" (ID: ${userId})? Esta ação é irreversível.`)) {
+            return;
+        }
+
+        setIsDeleting(true);
+        setDeleteMessage(`A eliminar utilizador "${userName}"...`);
+        setIsDeleteError(false);
+
+        try {
+            const response = await fetch(`${API_PAPI}/users/${userId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                let errorDetails = `Falha ao eliminar utilizador. Código: ${response.status}.`;
+                try {
+                    const errorData = await response.json();
+                    errorDetails = errorData.message || errorDetails;
+                } catch (e) {
+                    // Ignora se não houver body JSON
+                }
+                throw new Error(errorDetails);
+            }
+
+            setDeleteMessage(`Utilizador "${userName}" eliminado com sucesso.`);
+            setIsDeleteError(false);
+
+            await fetchAllUsers();
+
+        } catch (err) {
+            console.error("Erro ao eliminar utilizador:", err);
+            setDeleteMessage(err.message || "Erro desconhecido ao tentar eliminar o utilizador.");
+            setIsDeleteError(true);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     if (loading) return <SimpleLoadingState />;
 
@@ -71,6 +114,15 @@ export default function DashboardUsers() {
                 </p>
             </Card>
 
+            {/* Message Display */}
+            {deleteMessage && (
+                <Card variant={isDeleteError ? 'error' : 'success'}>
+                    <CardBody padding="small" className="text-center">
+                        {deleteMessage}
+                    </CardBody>
+                </Card>
+            )}
+
             <Card variant="light" className="p-0 overflow-hidden">
                 <CardHeader spacing="none" className="p-6">
                     <h2 className="text-xl font-bold" style={{ color: colors.secondary }}>
@@ -89,6 +141,7 @@ export default function DashboardUsers() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado Em</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -105,11 +158,24 @@ export default function DashboardUsers() {
                                     <StatusBadge status={user.is_active} type="user" />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.createdAtDisplay}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteUser(user.user_id, user.fullName);
+                                        }}
+                                        disabled={isDeleting}
+                                        className="flex items-center justify-center p-2 rounded-full text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                        title={`Eliminar Utilizador ${user.fullName}`}
+                                    >
+                                        <Trash2 size={16} className="text-black" />
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                         {users.length === 0 && (
                             <tr>
-                                <td colSpan="7" className="px-6 py-10 text-center text-gray-500 text-lg">
+                                <td colSpan="8" className="px-6 py-10 text-center text-gray-500 text-lg">
                                     Nenhum utilizador encontrado no sistema.
                                 </td>
                             </tr>
