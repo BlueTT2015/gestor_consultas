@@ -72,6 +72,13 @@ export default function Header() {
                         >
                             Forum
                         </Link>
+
+                        <Link
+                            to="/doctors"
+                            className="text-gray-600 hover:text-gray-900 transition duration-150 ease-in-out"
+                        >
+                            Médicos
+                        </Link>
                     </nav>
 
                     {/* Auth Section */}
