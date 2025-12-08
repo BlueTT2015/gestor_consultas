@@ -6,7 +6,7 @@ import CardHeader from "../components/CardHeader";
 import InputField from "../components/forms/InputField";
 import { Send, User, Building } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_BASE } from '../utils/constants';
+import { API_BASE, API_PAPI } from '../utils/constants'; // MODIFICADO: Importado API_PAPI
 import { DetailedLoadingState } from '../components/common/LoadingState';
 
 export default function Appointment() {
@@ -110,19 +110,41 @@ export default function Appointment() {
         setMessage(null);
         setIsError(false);
 
+        // 1. Calcular start e end (no formato ISO, com 60 min de duração)
+        // Cria um objeto Date combinando a data e hora do formulário
+        // A string gerada é 'YYYY-MM-DDTHH:MM:00' e o construtor Date() a interpreta como hora local
+        const startDateTime = new Date(`${formData.date}T${formData.time}:00`);
+
+        if (isNaN(startDateTime.getTime())) {
+            setMessage("Data ou hora de consulta inválida.");
+            setIsError(true);
+            setLoading(false);
+            return;
+        }
+
+        // Adiciona 60 minutos (60 * 60 * 1000 milissegundos) para calcular o 'end'
+        const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
+
+        // 2. Construir o payload com os nomes de campos esperados pela API (camelCase/ID)
         const appointmentData = {
-            clinic_id: parseInt(formData.clinic_id),
-            patient_id: 1,
-            doctor_id: parseInt(formData.doctor_id),
-            date: formData.date,
-            time: formData.time,
-            duration: 60,
+            // Campos esperados pela API (ID é mockado seguindo o padrão de CreateClinic)
+            id: Math.floor(Math.random() * 1000) + 100,
+            patientId: 1, // Paciente hardcoded para o exemplo
+            doctorId: parseInt(formData.doctor_id),
+            clinicId: parseInt(formData.clinic_id),
+            slotId: null, // Não está no formulário, opcional
+            start: startDateTime.toISOString(), // Data/hora de início (ISO 8601)
+            end: endDateTime.toISOString(),     // Data/hora de fim (ISO 8601)
             status: 'scheduled',
             reason: formData.reason,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         };
 
+
         try {
-            const response = await fetch(`${API_BASE}/appointments`, {
+            // MODIFICADO: Utilização do API_PAPI para a requisição POST
+            const response = await fetch(`${API_PAPI}/appointments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
