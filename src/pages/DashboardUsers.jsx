@@ -32,7 +32,6 @@ export default function DashboardUsers() {
             if (!response.ok) throw new Error("Falha ao carregar lista de Utilizadores");
 
             const usersData = await response.json();
-
             const formattedUsers = usersData.map(user => {
                 const statusDetails = formatStatusUser(user.is_active);
                 const roleDisplay = formatRole(user.role);

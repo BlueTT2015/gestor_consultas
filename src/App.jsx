@@ -1,6 +1,7 @@
 // src/App.jsx
 
 import {Route, Routes} from "react-router-dom";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 
 import './App.css';
@@ -55,7 +56,7 @@ export default function App() {
                     <Route path="/dashboard-appointments" element={<DashboardAppointments/>} />
                     <Route path="/appointment" element={<Appointment/>} />
                     <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
-                    <Route path="/dashboard-users" element={<DashboardUsers />} />
+                    <Route path="/dashboard-users" element={<ProtectedRoute><DashboardUsers /> </ProtectedRoute>} />
                     <Route path="/patient/:patientId" element={<PatientProfile/>} />
                     <Route path="/patient-appointments/:patientId" element={<PatientAppointments/>} />
                     <Route path="/dashboard-clinic-staff/:managerId" element={<DashboardClinicStaff/>} />
