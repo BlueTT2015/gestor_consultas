@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Card from "../components/Card";
 import CardHeader from "../components/CardHeader";
-import { Building, MapPin, Phone, Mail } from 'lucide-react'; // 'Clock' e 'Loader' removidos pois não são mais necessários
+import CardBody from "../components/CardBody"; // Import necessário para mensagens
+import { Building, MapPin, Phone, Mail, Trash2 } from 'lucide-react'; // Adicionado Trash2
 import { colors } from "../config/colors";
-import { API_BASE } from "../utils/constants";
-import { formatStatusUser } from "../utils/helpers"; // 'formatDateDisplay' removido
+import { API_BASE, API_PAPI } from "../utils/constants"; // Adicionado API_PAPI
+import { formatStatusUser } from "../utils/helpers";
 import { SimpleLoadingState, ErrorMessage } from "../components/common/LoadingState";
 import StatusBadge from "../components/common/StatusBadge";
 import PageWrapper from "../components/PageWrapper";
@@ -15,41 +16,87 @@ export default function DashboardClinics() {
     const [clinics, setClinics] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false); // Estado para o loading de deleção
+    const [deleteMessage, setDeleteMessage] = useState(null); // Mensagem após tentativa de deleção
+    const [isDeleteError, setIsDeleteError] = useState(false); // Se a mensagem é um erro
+
+    const fetchAllClinics = async () => {
+        try {
+            setLoading(true);
+            setDeleteMessage(null); // Limpa mensagens de deleção antigas ao recarregar
+
+            const response = await fetch(`${API_BASE}/clinics`); //
+
+            if (!response.ok) throw new Error("Falha ao carregar lista de Clínicas");
+
+            const clinicsData = await response.json();
+
+            const formattedClinics = clinicsData.map(clinic => {
+                const statusDetails = formatStatusUser(clinic.is_active);
+
+                return {
+                    ...clinic,
+                    statusDetails,
+                };
+            });
+
+            setClinics(formattedClinics);
+
+        } catch (err) {
+            setError(err.message);
+            console.error("Erro ao carregar dados do Dashboard de Clínicas:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchAllClinics = async () => {
-            try {
-                setLoading(true);
-
-                const response = await fetch(`${API_BASE}/clinics`);
-
-                if (!response.ok) throw new Error("Falha ao carregar lista de Clínicas");
-
-                const clinicsData = await response.json();
-
-                const formattedClinics = clinicsData.map(clinic => {
-                    const statusDetails = formatStatusUser(clinic.is_active);
-
-                    // As lógicas de formatação de data de criação e atualização foram removidas.
-
-                    return {
-                        ...clinic,
-                        statusDetails,
-                    };
-                });
-
-                setClinics(formattedClinics);
-
-            } catch (err) {
-                setError(err.message);
-                console.error("Erro ao carregar dados do Dashboard de Clínicas:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchAllClinics();
     }, []);
+
+    const handleDeleteClinic = async (clinicId, clinicName) => {
+        if (!window.confirm(`Tem a certeza que deseja eliminar a clínica "${clinicName}" (ID: ${clinicId})? Esta ação é irreversível.`)) {
+            return;
+        }
+
+        setIsDeleting(true);
+        setDeleteMessage(`A eliminar clínica "${clinicName}"...`);
+        setIsDeleteError(false);
+
+        try {
+            // Requisição DELETE para o endpoint PAPI: https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api/clinics/{clinicId}
+            const response = await fetch(`${API_PAPI}/clinics/${clinicId}`, { //
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                let errorDetails = `Falha ao eliminar clínica. Código: ${response.status}.`;
+                try {
+                    const errorData = await response.json();
+                    // Assumindo que a PAPI retorna um objeto com 'message' em caso de erro
+                    errorDetails = errorData.message || errorDetails;
+                } catch (e) {
+                    // Ignora se não houver body JSON
+                }
+                throw new Error(errorDetails);
+            }
+
+            // Sucesso
+            setDeleteMessage(`Clínica "${clinicName}" eliminada com sucesso.`);
+            setIsDeleteError(false);
+
+            // Re-fetch a lista para atualizar a tabela
+            await fetchAllClinics();
+
+        } catch (err) {
+            console.error("Erro ao eliminar clínica:", err);
+            setDeleteMessage(err.message || "Erro desconhecido ao tentar eliminar a clínica.");
+            setIsDeleteError(true);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
 
     if (loading) return <SimpleLoadingState />;
 
@@ -70,6 +117,15 @@ export default function DashboardClinics() {
                 </p>
             </Card>
 
+            {/* Message Display */}
+            {deleteMessage && (
+                <Card variant={isDeleteError ? 'error' : 'success'}>
+                    <CardBody padding="small" className="text-center">
+                        {deleteMessage}
+                    </CardBody>
+                </Card>
+            )}
+
             {/* Tabela de Clínicas */}
             <Card variant="light" className="p-0 overflow-hidden">
                 <CardHeader spacing="none" className="p-6">
@@ -89,7 +145,7 @@ export default function DashboardClinics() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coordenadas</th>
-                            {/* Coluna 'Datas' removida */}
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th> {/* ADICIONADO */}
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -135,13 +191,25 @@ export default function DashboardClinics() {
                                     <p>Lon: <span className="font-mono text-xs">{clinic.longitude}</span></p>
                                 </td>
 
-                                {/* Célula 'Datas' removida */}
+                                {/* Ações (Delete Button) - ADICIONADO */}
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <button
+
+                                        onClick={() => handleDeleteClinic(clinic.clinic_id, clinic.name)}
+                                        disabled={isDeleting}
+                                        className="flex items-center justify-center p-2 rounded-full text-black bg-red-500 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{backgroundColor: "#ff0000 !important"}}
+                                        title={`Eliminar Clínica ${clinic.name}`}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                         {clinics.length === 0 && (
                             <tr>
-                                {/* colSpan ajustado de 8 para 7 */}
-                                <td colSpan="7" className="px-6 py-10 text-center text-gray-500 text-lg">
+                                {/* colSpan ajustado de 7 para 8 */}
+                                <td colSpan="8" className="px-6 py-10 text-center text-gray-500 text-lg">
                                     Nenhuma clínica encontrada no sistema.
                                 </td>
                             </tr>
