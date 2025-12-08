@@ -1,5 +1,3 @@
-// src/pages/Appointment.jsx
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Card from "../components/Card";
@@ -8,7 +6,7 @@ import CardHeader from "../components/CardHeader";
 import InputField from "../components/forms/InputField";
 import { Send, User, Building } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_BASE, API_PAPI } from '../utils/constants'; // Importado API_PAPI
+import { API_BASE, API_PAPI } from '../utils/constants';
 import { DetailedLoadingState } from '../components/common/LoadingState';
 
 export default function Appointment() {
@@ -84,7 +82,6 @@ export default function Appointment() {
         fetchData();
     }, [doctorIdFromState]);
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -124,7 +121,6 @@ export default function Appointment() {
         };
 
         try {
-            // Requisição POST para o endpoint da PAPI
             const response = await fetch(`${API_PAPI}/appointments`, {
                 method: 'POST',
                 headers: {
@@ -139,6 +135,7 @@ export default function Appointment() {
                     const errorData = await response.json();
                     errorDetails = errorData.message || errorDetails;
                 } catch (e) {
+                    // Ignora se não conseguir parsear JSON
                 }
                 throw new Error(errorDetails);
             }
@@ -234,7 +231,7 @@ export default function Appointment() {
                                         onChange={handleChange}
                                         required
                                         className="w-full p-3 border rounded-lg focus:ring-2 appearance-none"
-                                        style={{ borderColor: colors.accent2, focusColor: colors.primary }}
+                                        style={{ borderColor: colors.accent2 }}
                                         disabled={associatedClinics.length === 0}
                                     >
                                         <option value="">
@@ -254,6 +251,7 @@ export default function Appointment() {
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField
                                     id="date"
+                                    name="date" // Adicionado name
                                     label="Data"
                                     type="date"
                                     value={formData.date}
@@ -263,6 +261,7 @@ export default function Appointment() {
                                 />
                                 <InputField
                                     id="time"
+                                    name="time" // Adicionado name
                                     label="Hora"
                                     type="time"
                                     value={formData.time}
@@ -272,15 +271,21 @@ export default function Appointment() {
                                 />
                             </div>
 
-                            <InputField
-                                id="reason"
-                                label="Motivo da Consulta"
-                                type="textarea"
-                                value={formData.reason}
-                                onChange={handleChange}
-                                required
-                                placeholder="Descreva brevemente o motivo da sua consulta..."
-                            />
+                            {/* Usando textarea diretamente pois InputField não suporta textarea */}
+                            <div className="space-y-2">
+                                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                                    Motivo da Consulta *
+                                </label>
+                                <textarea
+                                    id="reason"
+                                    name="reason" // Adicionado name
+                                    value={formData.reason}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Descreva brevemente o motivo da sua consulta..."
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px]"
+                                />
+                            </div>
 
                             {message && (
                                 <Card

@@ -9,7 +9,9 @@ export default function InputField({
                                        onChange,
                                        required = false,
                                        icon: Icon,
-                                       error
+                                       error,
+                                       name, // Adicionada prop name
+                                       ...props // Para passar outras props como min, max, step
                                    }) {
     return (
         <div className="space-y-2">
@@ -24,6 +26,7 @@ export default function InputField({
                 )}
                 <input
                     id={id}
+                    name={name || id} // Usa name ou id como fallback
                     type={type}
                     value={value}
                     onChange={onChange}
@@ -40,6 +43,7 @@ export default function InputField({
                         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                     }
                     `}
+                    {...props} // Passa outras props
                 />
                 {error && (
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -56,4 +60,3 @@ export default function InputField({
         </div>
     );
 }
-
