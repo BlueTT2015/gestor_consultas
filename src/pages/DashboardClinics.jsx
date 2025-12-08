@@ -208,7 +208,7 @@ export default function DashboardClinics() {
                                 {/* Ações (Edit and Delete Buttons) - ATUALIZADO */}
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     <div className="flex items-center space-x-2">
-                                        {/* Botão de Edição - NOVO */}
+                                        {/* Botão de Edição - OK */}
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -224,15 +224,15 @@ export default function DashboardClinics() {
                                             <Pencil size={16} />
                                         </button>
 
-                                        {/* Botão de Deleção - EXISTENTE */}
+                                        {/* Botão de Deleção - CORRIGIDO PARA TER text-white E COR VERMELHA CONSISTENTE */}
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDeleteClinic(clinic.clinic_id, clinic.name);
                                             }}
                                             disabled={isDeleting}
-                                            className="flex items-center justify-center p-2 rounded-full text-black bg-red-500 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                            style={{backgroundColor: "#ff0000 !important"}}
+                                            className="flex items-center justify-center p-2 rounded-full text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                            style={{backgroundColor: "red"}} // Corrigido para ser consistente com o design do specialties
                                             title={`Eliminar Clínica ${clinic.name}`}
                                         >
                                             <Trash2 size={16} />

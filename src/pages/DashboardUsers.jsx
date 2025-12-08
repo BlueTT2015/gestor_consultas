@@ -1,8 +1,11 @@
+// src/pages/DashboardUsers.jsx
+
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
-import { Users, Trash2 } from 'lucide-react';
+import { Users, Trash2, Pencil, PlusCircle } from 'lucide-react'; // Adicionado PlusCircle
 import { colors } from "../config/colors";
 import { API_PAPI } from "../utils/constants";
 import { formatStatusUser, formatRole, formatDateDisplay } from "../utils/helpers";
@@ -11,6 +14,7 @@ import StatusBadge from "../components/common/StatusBadge";
 import PageWrapper from "../components/PageWrapper";
 
 export default function DashboardUsers() {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -96,6 +100,12 @@ export default function DashboardUsers() {
         }
     };
 
+    // Função para navegar para a página de edição (rota simulada)
+    const handleEditUser = (userId) => {
+        // NOTA: Esta rota é simulada para consistência de design, assumindo uma futura implementação
+        navigate(`/edit-user/${userId}`);
+    };
+
     if (loading) return <SimpleLoadingState />;
 
     if (error) return <ErrorMessage message={error} />;
@@ -103,6 +113,23 @@ export default function DashboardUsers() {
 
     return (
         <PageWrapper maxWidth="max-w-7xl">
+            {/* NOVO BOTÃO: Criar Novo Utilizador */}
+            <div className="flex justify-end mb-6">
+                <button
+                    onClick={() => navigate('/create-user')}
+                    className="flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold transition-colors shadow-md hover:shadow-lg"
+                    style={{
+                        backgroundColor: colors.primary,
+                        color: colors.white,
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#45b87d'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
+                >
+                    <PlusCircle size={20} className="mr-1" />
+                    Criar Novo Utilizador
+                </button>
+            </div>
+
             <Card variant="secondary" className="text-white text-center"
                   style={{ background: `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.accent1} 100%)` }}>
                 <Users size={36} className="mx-auto mb-2 text-white" />
@@ -159,17 +186,37 @@ export default function DashboardUsers() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.createdAtDisplay}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteUser(user.user_id, user.fullName);
-                                        }}
-                                        disabled={isDeleting}
-                                        className="flex items-center justify-center p-2 rounded-full text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                        title={`Eliminar Utilizador ${user.fullName}`}
-                                    >
-                                        <Trash2 size={16} className="text-black" />
-                                    </button>
+                                    <div className="flex items-center space-x-2">
+                                        {/* Botão de Edição (Rota Simulada) */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEditUser(user.user_id);
+                                            }}
+                                            disabled={isDeleting}
+                                            className="flex items-center justify-center p-2 rounded-full text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                            title={`Editar Utilizador ${user.fullName}`}
+                                            style={{ backgroundColor: colors.accent1 }}
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.secondary}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.accent1}
+                                        >
+                                            <Pencil size={16} />
+                                        </button>
+
+                                        {/* Botão de Deleção - Atualizado para ter estilo consistente */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteUser(user.user_id, user.fullName);
+                                            }}
+                                            disabled={isDeleting}
+                                            className="flex items-center justify-center p-2 rounded-full text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                            style={{backgroundColor: "red"}}
+                                            title={`Eliminar Utilizador ${user.fullName}`}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

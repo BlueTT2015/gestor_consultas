@@ -127,9 +127,9 @@ export default function EditClinic() {
         };
 
         try {
-            // Requisição PATCH para o endpoint PAPI, usando o ID na URL
-            const response = await fetch(`${API_PAPI}/clinics/${numericClinicId}`, {
-                method: 'PATCH', // Alterado para PATCH
+            // Requisição PUT para o endpoint PAPI, usando o ID na URL
+            const response = await fetch(`${API_BASE}/clinics/${numericClinicId}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
