@@ -9,7 +9,7 @@ import InputField from "../components/forms/InputField";
 import PageWrapper from "../components/PageWrapper";
 import { Award, ArrowLeft, PlusCircle } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_BASE, API_PAPI } from '../utils/constants'; // Importar API_BASE para calcular ID
+import { API_BASE, API_PAPI } from '../utils/constants';
 import { DetailedLoadingState, ErrorMessage } from '../components/common/LoadingState';
 
 export default function CreateSpecialty() {
@@ -90,7 +90,7 @@ export default function CreateSpecialty() {
         setIsError(false);
 
         const specialtyData = {
-            id: nextSpecialtyId, // ID gerado e usado automaticamente
+            id: nextSpecialtyId,
             name: formData.name,
             description: formData.description,
         };
@@ -171,7 +171,6 @@ export default function CreateSpecialty() {
                 <CardBody>
                     <form onSubmit={handleSubmit} className="space-y-6">
 
-                        {/* O bloco de exibição do ID foi removido, mas o ID é calculado e usado internamente. */}
 
                         {/* Nome */}
                         <InputField
@@ -211,7 +210,6 @@ export default function CreateSpecialty() {
 
                         <button
                             type="submit"
-                            // A submissão ainda depende de nextSpecialtyId não ser null
                             disabled={isSubmitting || nextSpecialtyId === null}
                             className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-lg font-semibold transition-colors shadow-md"
                             style={{

@@ -40,7 +40,6 @@ export default function CreateClinic() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validação simples para campos obrigatórios (apenas o 'phone' é opcional)
         const requiredFields = ['name', 'email', 'address', 'city', 'postal_code', 'district', 'latitude', 'longitude'];
         for (const field of requiredFields) {
             if (!formData[field]) {
@@ -72,7 +71,6 @@ export default function CreateClinic() {
         };
 
         try {
-            // Requisição POST para o endpoint da PAPI: https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api/clinics
             const response = await fetch(`${API_PAPI}/clinics`, {
                 method: 'POST',
                 headers: {

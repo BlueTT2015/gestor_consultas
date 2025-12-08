@@ -3,7 +3,7 @@ const API_BASE_URL = 'https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api';
 export const authService = {
     async login(email, password) {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetch(`${API_BASE_URL}/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

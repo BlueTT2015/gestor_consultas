@@ -70,7 +70,7 @@ export default function ClinicDoctors() {
                 const usersData = await usersRes.json();
 
                 if (!docSpecialtiesRes.ok) throw new Error("Falha ao carregar especialidades dos médicos");
-                const docSpecialtiesData = await docSpecialtiesRes.json(); // NEW
+                const docSpecialtiesData = await docSpecialtiesRes.json();
 
                 const foundClinic = clinicsData.find(c => c.clinic_id === parseInt(clinicId));
                 if (!foundClinic) {
@@ -82,7 +82,6 @@ export default function ClinicDoctors() {
                 const clinicAssociations = doctorClinicsData.filter(dc => dc.clinic_id === parseInt(clinicId));
                 setDoctorClinics(clinicAssociations);
 
-                // Mock Specialties data (AS PER ASSUMPTION)
                 const mockSpecialties = [
                     { specialty_id: 1, name: "Cardiologia" },
                     { specialty_id: 2, name: "Dermatologia" },
@@ -92,7 +91,6 @@ export default function ClinicDoctors() {
                 ];
                 const specialtiesMap = new Map(mockSpecialties.map(s => [s.specialty_id, s.name]));
 
-                // Create specialty map for doctors
                 const doctorSpecialtiesMap = new Map();
                 docSpecialtiesData.forEach(ds => {
                     if (!doctorSpecialtiesMap.has(ds.doctor_id)) {
@@ -105,13 +103,11 @@ export default function ClinicDoctors() {
                     });
                 });
 
-                // Criar mapa de usuários
                 const userMap = {};
                 usersData.forEach(user => {
                     userMap[user.user_id] = user;
                 });
 
-                // Combinar dados
                 const combinedDoctors = clinicAssociations.map(association => {
                     const doctor = doctorsData.find(d => d.doctor_id === association.doctor_id);
                     if (!doctor) return null; // Should not happen if data integrity is fine
@@ -139,7 +135,7 @@ export default function ClinicDoctors() {
 
                 // FILTRO: Filtrar para mostrar APENAS os doutores que estão ativos no sistema
                 const activeSystemDoctors = combinedDoctors.filter(doctor => {
-                    // Checa a atividade geral (lida com inconsistência string/boolean)
+                    // Verifica atividade geral (lida com inconsistência string/boolean)
                     const isGeneralActive = doctor.is_active === true || String(doctor.is_active).toLowerCase() === 'true';
 
                     // O médico deve estar ativo no sistema para aparecer
@@ -194,8 +190,6 @@ export default function ClinicDoctors() {
             window.open(url, '_blank');
         }
     };
-
-    // Removido formatDate (não usado)
 
     if (loading) return (
         <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
@@ -343,7 +337,6 @@ export default function ClinicDoctors() {
                                     onClick={() => handleDoctorClick(doctor)}
                                     className="overflow-hidden"
                                 >
-                                    {/* Cabeçalho do card com gradiente */}
                                     <div
                                         className="h-32 relative -mx-6 -mt-6 mb-6"
                                         style={{ background: getAvatarColor(doctor.doctor_id) }}
@@ -363,7 +356,6 @@ export default function ClinicDoctors() {
                                                 <h3 className="font-bold text-lg">Dr. {doctor.full_name}</h3>
                                                 <div className="flex items-center gap-2 text-sm opacity-90">
                                                     <Stethoscope size={14} />
-                                                    {/* ATUALIZADO: Usar a especialidade combinada */}
                                                     <span>{doctor.specialty}</span>
                                                 </div>
                                             </div>
@@ -384,10 +376,8 @@ export default function ClinicDoctors() {
                                             </div>
                                         )}
 
-                                        {/* Informações específicas desta clínica (Taxa de Appointment) */}
                                         {doctor.association_data && (
                                             <div className="p-3 rounded-lg border border-gray-200">
-                                                {/* Estrutura ajustada para ter apenas a Taxa de Appointment */}
                                                 <div>
                                                     <div className="flex items-center gap-2 mb-1">
                                                         <DollarSign size={14} className="text-green-500" />
@@ -411,13 +401,11 @@ export default function ClinicDoctors() {
 
                                         {/* Informações gerais (Experiência) */}
                                         <div className="grid grid-cols-1 gap-4">
-                                            {/* Removida Licença */}
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
                                                     <Award size={16} className="text-green-500" />
                                                     <span className="text-sm font-medium text-gray-700">Experiência</span>
                                                 </div>
-                                                {/* ATUALIZADO: Usar anos de experiência combinados/prioritários */}
                                                 <p className="text-sm font-semibold text-gray-800">
                                                     {doctor.years_experience || 0} anos
                                                 </p>
@@ -454,7 +442,6 @@ export default function ClinicDoctors() {
                             ))}
                         </div>
 
-                        {/* Estatísticas */}
                         <div className="mt-12">
                             <Card
                                 variant="secondary"

@@ -93,7 +93,6 @@ export default function DashboardClinicStaff() {
                                 ...user,
                                 role: 'Doctor',
                                 roleDisplay: 'Médico',
-                                // Status combinado: ativo no sistema de usuário E ativo na associação da clínica
                                 is_active: user.is_active && assoc.is_active,
                                 hire_date: assoc.start_date,
                             });

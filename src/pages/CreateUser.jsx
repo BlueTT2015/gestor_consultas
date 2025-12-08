@@ -100,7 +100,6 @@ export default function CreateUser() {
         setMessage(null);
         setIsError(false);
 
-        // PAYLOAD COM CAMPOS REQUERIDOS PELA PAPI
         const userData = {
             id: nextUserId, // ID CALCULADO
             email: formData.email,

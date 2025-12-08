@@ -112,7 +112,6 @@ export default function Appointment() {
         setMessage(null);
         setIsError(false);
 
-        // PAYLOAD CORRIGIDO (apenas campos necessários e valores defaults)
         const appointmentData = {
             clinic_id: parseInt(formData.clinic_id),
             patient_id: 1, // Paciente hardcoded

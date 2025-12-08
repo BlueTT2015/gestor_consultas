@@ -95,7 +95,6 @@ export default function DashboardClinics() {
         }
     };
 
-    // FUNÇÃO NOVO: Navegar para a página de edição
     const handleEditClinic = (clinicId) => {
         navigate(`/edit-clinic/${clinicId}`);
     };
@@ -108,7 +107,6 @@ export default function DashboardClinics() {
 
     return (
         <PageWrapper maxWidth="max-w-7xl">
-            {/* NOVO BOTÃO: Criar Nova Clínica */}
             <div className="flex justify-end mb-6">
                 <button
                     onClick={() => navigate('/create-clinic')}
@@ -205,7 +203,6 @@ export default function DashboardClinics() {
                                     <p>Lon: <span className="font-mono text-xs">{clinic.longitude}</span></p>
                                 </td>
 
-                                {/* Ações (Edit and Delete Buttons) - ATUALIZADO */}
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     <div className="flex items-center space-x-2">
                                         {/* Botão de Edição - OK */}
@@ -224,7 +221,6 @@ export default function DashboardClinics() {
                                             <Pencil size={16} />
                                         </button>
 
-                                        {/* Botão de Deleção - CORRIGIDO PARA TER text-white E COR VERMELHA CONSISTENTE */}
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
