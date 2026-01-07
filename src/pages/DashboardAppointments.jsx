@@ -78,10 +78,34 @@ export default function DashboardAppointments() {
                     doctorsRes,
                     usersRes,
                 ] = await Promise.all([
-                    fetch(`${API_BASE}/appointments`),
-                    fetch(`${API_BASE}/clinics`),
-                    fetch(`${API_BASE}/doctors`),
-                    fetch(`${API_BASE}/users`),
+                    fetch(`${API_BASE}/appointments`, {
+                        method: 'GET',
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/clinics`, {
+                        method: 'GET',
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/doctors`, {
+                        method: 'GET',
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/users`, {
+                        method: 'GET',
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
                 ]);
 
                 if (!appointmentsRes.ok) throw new Error("Falha ao carregar consultas");

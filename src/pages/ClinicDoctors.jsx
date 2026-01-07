@@ -50,11 +50,42 @@ export default function ClinicDoctors() {
                     usersRes,
                     docSpecialtiesRes
                 ] = await Promise.all([
-                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/clinics"),
-                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-clinics"),
-                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors"),
-                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users"),
-                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-specialties"), // NEW
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/clinics", {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-clinics", {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors", {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users", {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors-specialties", {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
                 ]);
 
                 if (!clinicsRes.ok) throw new Error("Falha ao carregar clínicas");

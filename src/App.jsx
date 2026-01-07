@@ -1,9 +1,12 @@
+// src/App.jsx
+
 import {Route, Routes} from "react-router-dom";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+
 import './App.css';
+
 import MainLayout from "./layouts/MainLayout";
 
-// Importação das páginas (Mantive as tuas importações originais)
 import Home from './pages/Home';
 import About from './pages/About';
 import Forum from './pages/Forum';
@@ -31,160 +34,54 @@ import CreateSpecialty from "./pages/CreateSpecialty.jsx";
 import EditSpecialty from "./pages/EditSpecialty.jsx";
 import CreateUser from "./pages/CreateUser.jsx";
 
+
 export default function App() {
     return (
         <>
             <Routes>
                 <Route path="/" element={<MainLayout />}>
 
-                    {/* === ROTAS PÚBLICAS === */}
+                    {/* --- ROTAS PÚBLICAS (Acessíveis a qualquer pessoa) --- */}
                     <Route path="/" index element={<Home />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/forum" element={<Forum />} />
+
+                    {/* Autenticação */}
                     <Route path="/auth/login" element={<Login />} />
                     <Route path="/auth/register" element={<Register />} />
                     <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
-                    {/* Listagens Públicas (Medicos e Clinicas) */}
+                    {/* Listagens Públicas */}
                     <Route path="/doctors" element={<Doctors />} />
-                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} />
+                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} /> {/* O perfil público do médico continua visível */}
                     <Route path="/clinics" element={<Clinics />} />
-                    <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
+                    <Route path="/clinic/:clinicId" element={<ClinicDoctors />} /> {/* Ver detalhes da clínica continua visível */}
 
 
-                    {/* === ÁREA DO PACIENTE (Patient + Admin) === */}
-                    {/* Acesso: Paciente, Admin. (Médicos e Assistentes tb podem marcar para si mesmos? Se sim, adiciona-os) */}
-                    <Route
-                        path="/appointment"
-                        element={
-                            <ProtectedRoute allowedRoles={['patient', 'admin']}>
-                                <Appointment/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/patient-appointments/:patientId"
-                        element={
-                            <ProtectedRoute allowedRoles={['patient', 'admin']}>
-                                <PatientAppointments/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/patient/:patientId"
-                        element={
-                            // Médicos também podem ver perfil do paciente
-                            <ProtectedRoute allowedRoles={['patient', 'doctor', 'admin']}>
-                                <PatientProfile/>
-                            </ProtectedRoute>
-                        }
-                    />
+                    {/* --- ROTAS PROTEGIDAS (Apenas utilizadores autenticados) --- */}
 
+                    {/* Dashboards e Agendamentos */}
+                    <Route path="/dashboard-appointments" element={<ProtectedRoute><DashboardAppointments/></ProtectedRoute>} />
+                    <Route path="/appointment" element={<ProtectedRoute><Appointment/></ProtectedRoute>} />
 
-                    {/* === ÁREA DO MÉDICO (Doctor + Admin) === */}
-                    <Route
-                        path="/dashboard-doctor-appointment/:doctorId"
-                        element={
-                            <ProtectedRoute allowedRoles={['doctor', 'admin']}>
-                                <DashboardDoctorAppointment/>
-                            </ProtectedRoute>
-                        }
-                    />
+                    {/* Gestão de Utilizadores e Pacientes */}
+                    <Route path="/dashboard-users" element={<ProtectedRoute><DashboardUsers /> </ProtectedRoute>} />
+                    <Route path="/patient/:patientId" element={<ProtectedRoute><PatientProfile/></ProtectedRoute>} />
+                    <Route path="/patient-appointments/:patientId" element={<ProtectedRoute><PatientAppointments/></ProtectedRoute>} />
 
+                    {/* Gestão de Clínicas e Staff */}
+                    <Route path="/dashboard-clinic-staff/:managerId" element={<ProtectedRoute><DashboardClinicStaff/></ProtectedRoute>} />
+                    <Route path="/dashboard-clinics" element={<ProtectedRoute><DashboardClinics /></ProtectedRoute>} />
+                    <Route path="/dashboard-clinic-appointment/:managerId" element={<ProtectedRoute><DashboardClinicAppointments /></ProtectedRoute>} />
+                    <Route path="/dashboard-doctor-appointment/:doctorId" element={<ProtectedRoute><DashboardDoctorAppointment/></ProtectedRoute>} />
 
-                    {/* === ÁREA DO ASSISTENTE / GESTOR DE CLÍNICA (Manager + Admin) === */}
-                    <Route
-                        path="/dashboard-clinic-staff/:managerId"
-                        element={
-                            <ProtectedRoute allowedRoles={['manager', 'admin']}>
-                                <DashboardClinicStaff/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/dashboard-clinic-appointment/:managerId"
-                        element={
-                            <ProtectedRoute allowedRoles={['manager', 'admin']}>
-                                <DashboardClinicAppointments />
-                            </ProtectedRoute>
-                        }
-                    />
-                    {/* Assumo que o Gestor pode ver DashboardClinics mas apenas da sua? Ou lista de clínicas para editar? */}
-                    <Route
-                        path="/dashboard-clinics"
-                        element={
-                            <ProtectedRoute allowedRoles={['manager', 'admin']}>
-                                <DashboardClinics />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/edit-clinic/:clinicId"
-                        element={
-                            <ProtectedRoute allowedRoles={['manager', 'admin']}>
-                                <EditClinic />
-                            </ProtectedRoute>
-                        }
-                    />
-
-
-                    {/* === ÁREA DO ADMINISTRADOR (Apenas Admin) === */}
-                    <Route
-                        path="/dashboard-users"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <DashboardUsers />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/dashboard-appointments"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <DashboardAppointments/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/create-clinic"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <CreateClinic />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/dashboard-specialties"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <DashboardSpecialties/>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/create-specialty"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <CreateSpecialty />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/edit-specialty/:specialtyId"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <EditSpecialty />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/create-user"
-                        element={
-                            <ProtectedRoute allowedRoles={['admin']}>
-                                <CreateUser />
-                            </ProtectedRoute>
-                        }
-                    />
+                    {/* Criação e Edição (Admin/Gestão) */}
+                    <Route path="/create-clinic" element={<ProtectedRoute><CreateClinic /></ProtectedRoute>} />
+                    <Route path="/edit-clinic/:clinicId" element={<ProtectedRoute><EditClinic /></ProtectedRoute>} />
+                    <Route path="/dashboard-specialties" element={<ProtectedRoute><DashboardSpecialties/></ProtectedRoute>} />
+                    <Route path="/create-specialty" element={<ProtectedRoute><CreateSpecialty /></ProtectedRoute>} />
+                    <Route path="/edit-specialty/:specialtyId" element={<ProtectedRoute><EditSpecialty /></ProtectedRoute>} />
+                    <Route path="/create-user" element={<ProtectedRoute><CreateUser /></ProtectedRoute>} />
 
                 </Route>
 
