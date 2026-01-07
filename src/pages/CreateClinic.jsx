@@ -74,7 +74,8 @@ export default function CreateClinic() {
             const response = await fetch(`${API_PAPI}/clinics`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
                 },
                 body: JSON.stringify(clinicData),
             });
