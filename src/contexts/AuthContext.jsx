@@ -27,20 +27,27 @@ export const AuthProvider = ({ children }) => {
             setLoading(true);
             const response = await authService.login(email, password);
 
-            // Guarda no localStorage
-            localStorage.setItem('token', response.accessToken);
-            localStorage.setItem('user', JSON.stringify(response.user));
+            // Verifica se a API retornou o accessToken conforme o esperado
+            if (response && response.accessToken) {
+                const token = response.accessToken;
+                const userData = { email: email }; // Objeto básico para a UI
 
-            // Atualiza o estado
-            setToken(response.accessToken);
-            setUser(response.user);
+                // Guarda no localStorage
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(userData));
 
-            return { success: true, data: response };
+                // Atualiza estados globais
+                setToken(token);
+                setUser(userData);
+
+                return { success: true };
+            } else {
+                return { success: false, error: 'Falha na resposta: Token não encontrado.' };
+            }
         } catch (error) {
-            console.error('Erro no login:', error);
             return {
                 success: false,
-                error: error?.message || 'Erro ao fazer login. Verifique as credenciais.'
+                error: error.message // Mostrará "Credenciais inválidas (401)" se falhar
             };
         } finally {
             setLoading(false);
