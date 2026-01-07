@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext"; // Importar o contexto
 import Card from "../components/Card";
 import CardHeader from "../components/CardHeader";
 import StatusBadge from "../components/common/StatusBadge";
 import PageWrapper from "../components/PageWrapper";
-import { Users, Building, Stethoscope, User } from 'lucide-react';
+import { Users, Building, Stethoscope, User, ShieldAlert } from 'lucide-react';
 import { colors } from "../config/colors";
 import { API_BASE } from "../utils/constants";
 import { SimpleLoadingState, ErrorMessage } from "../components/common/LoadingState";
@@ -15,10 +16,33 @@ import { formatStatusUser, formatDateDisplay } from "../utils/helpers";
 export default function DashboardClinicStaff() {
     const { managerId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth(); // Obter o utilizador autenticado
+
     const [staff, setStaff] = useState([]);
     const [clinicInfo, setClinicInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // --- VERIFICAÇÃO DE PERMISSÕES ---
+    // Impede que um gestor veja os dados de outro gestor mudando o ID no URL
+    // Nota: O user.user_id deve corresponder ao managerId passado na rota.
+    if (user && user.role !== 'admin' && String(user.user_id) !== String(managerId)) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <Card variant="error" className="max-w-md w-full text-center p-8">
+                    <ShieldAlert size={48} className="mx-auto mb-4 text-red-500" />
+                    <h2 className="text-xl font-bold mb-2">Acesso Negado</h2>
+                    <p>Não tem permissão para ver os dados deste staff.</p>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-6 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition"
+                    >
+                        Voltar à Home
+                    </button>
+                </Card>
+            </div>
+        );
+    }
 
     const numericManagerId = parseInt(managerId);
 

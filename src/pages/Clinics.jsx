@@ -26,7 +26,13 @@ export default function Clinics() {
     useEffect(() => {
         const fetchClinics = async () => {
             try {
-                const response = await fetch("https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api/clinics");
+                const response = await fetch("https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api/clinics", {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
+                    }
+                });
                 if (!response.ok) throw new Error("Falha ao carregar clínicas");
                 const data = await response.json();
                 setClinics(data);

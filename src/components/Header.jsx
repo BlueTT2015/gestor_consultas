@@ -17,6 +17,19 @@ export default function Header() {
         white: '#FFFFFF'
     };
 
+    // --- ADIÇÃO: Mapeamento dos cargos para português ---
+    const roleLabels = {
+        "admin": 'Administrador',
+        "patient": 'Paciente',
+        "doctor": 'Médico',
+        "assistant": 'Assistente',
+        "clinic_manager": 'Gestor de Clínica'
+    };
+
+    // --- ADIÇÃO: Lógica para obter o nome do cargo ---
+    const displayRole = user?.role ? (roleLabels[user.role] || user.role) : '';
+    // ----------------------------------------------------
+    console.log(user)
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -96,7 +109,8 @@ export default function Header() {
                                     </div>
                                     <div className="text-left">
                                         <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                                        <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                                        {/* Pequena alteração: agora usa displayRole se disponível */}
+                                        <p className="text-xs text-gray-500 capitalize">{displayRole || user.role}</p>
                                     </div>
                                     <ChevronDown size={16} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
@@ -107,43 +121,50 @@ export default function Header() {
                                         <div className="px-4 py-2 border-b border-gray-100">
                                             <p className="text-sm font-medium text-gray-800">{user.name}</p>
                                             <p className="text-xs text-gray-500">{user.email}</p>
-                                            <p className="text-xs text-gray-500 capitalize mt-1">{user.role}</p>
+
+                                            {/* --- ADIÇÃO: Cargo destacado --- */}
+                                            {displayRole && (
+                                                <p className="text-xs font-bold mt-1 uppercase tracking-wide" style={{ color: colors.secondary }}>
+                                                    {displayRole}
+                                                </p>
+                                            )}
+                                            {/* ------------------------------- */}
                                         </div>
 
                                         {user.role === 'admin' && (
                                             <>
-                                            <Link
-                                                to="/dashboard-users"
-                                                onClick={() => setDropdownOpen(false)}
-                                                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                <span>Utilizadores</span>
-                                            </Link>
+                                                <Link
+                                                    to="/dashboard-users"
+                                                    onClick={() => setDropdownOpen(false)}
+                                                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    <span>Utilizadores</span>
+                                                </Link>
 
-                                            <Link
-                                                to="/dashboard-clinics"
-                                                onClick={() => setDropdownOpen(false)}
-                                                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                <span>Clínicas</span>
-                                            </Link>
+                                                <Link
+                                                    to="/dashboard-clinics"
+                                                    onClick={() => setDropdownOpen(false)}
+                                                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    <span>Clínicas</span>
+                                                </Link>
 
-                                            <Link
-                                                to="/dashboard-specialties"
-                                                onClick={() => setDropdownOpen(false)}
-                                                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                <span>Especialidades</span>
-                                            </Link>
+                                                <Link
+                                                    to="/dashboard-specialties"
+                                                    onClick={() => setDropdownOpen(false)}
+                                                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    <span>Especialidades</span>
+                                                </Link>
 
-                                            <Link
-                                                to="/dashboard-appointments"
-                                                onClick={() => setDropdownOpen(false)}
-                                                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                <span>Consultas</span>
-                                            </Link>
-                                    </>
+                                                <Link
+                                                    to="/dashboard-appointments"
+                                                    onClick={() => setDropdownOpen(false)}
+                                                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    <span>Consultas</span>
+                                                </Link>
+                                            </>
 
                                         )}
 

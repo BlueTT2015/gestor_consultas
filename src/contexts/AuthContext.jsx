@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authService } from '../services/authService';
+import { API_BASE } from '../utils/constants'; //
 
 const AuthContext = createContext({});
 
@@ -11,10 +12,9 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Verifica se há token no localStorage
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-
+        console.log(storedUser);
         if (storedToken && storedUser) {
             setToken(storedToken);
             setUser(JSON.parse(storedUser));
@@ -27,27 +27,41 @@ export const AuthProvider = ({ children }) => {
             setLoading(true);
             const response = await authService.login(email, password);
 
-            // Verifica se a API retornou o accessToken conforme o esperado
             if (response && response.accessToken) {
-                const token = response.accessToken;
-                const userData = { email: email }; // Objeto básico para a UI
+                const accessToken = response.accessToken;
 
-                // Guarda no localStorage
-                localStorage.setItem('token', token);
+                // --- PASSO NOVO: Buscar os dados do utilizador (Role e ID) ---
+                // Assumindo que a API de users permite filtrar por email
+                const userRes = await fetch(`${API_BASE}/users?email=${email}`);
+                const usersFound = await userRes.json();
+
+                let userData;
+
+                if (usersFound && usersFound.length > 0) {
+                    // Utilizador encontrado na BD
+                    userData = usersFound[0];
+                    // userData deve ter: { user_id, role, first_name, etc... }
+                } else {
+                    // Fallback se a API não encontrar (apenas para evitar crash)
+                    userData = { email: email, role: 'patient' };
+                }
+
+                // Guardar tudo
+                localStorage.setItem('token', accessToken);
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // Atualiza estados globais
-                setToken(token);
+                setToken(accessToken);
                 setUser(userData);
 
                 return { success: true };
             } else {
-                return { success: false, error: 'Falha na resposta: Token não encontrado.' };
+                return { success: false, error: 'Token não encontrado.' };
             }
         } catch (error) {
+            console.error("Login error:", error);
             return {
                 success: false,
-                error: error.message // Mostrará "Credenciais inválidas (401)" se falhar
+                error: error.message
             };
         } finally {
             setLoading(false);
@@ -61,8 +75,14 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
-    const isAuthenticated = () => {
-        return !!token;
+    const isAuthenticated = () => !!token;
+
+    // Helper para verificar se o user tem permissão
+    const hasRole = (allowedRoles) => {
+        if (!user || !user.role) return false;
+        // Admin tem acesso a tudo, por isso retorna sempre true se for admin
+        if (user.role === 'admin') return true;
+        return allowedRoles.includes(user.role);
     };
 
     const value = {
@@ -71,6 +91,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         isAuthenticated,
+        hasRole, // Exportamos esta função nova
         loading
     };
 
@@ -80,4 +101,3 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
