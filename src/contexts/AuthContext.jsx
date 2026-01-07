@@ -32,7 +32,13 @@ export const AuthProvider = ({ children }) => {
 
                 // --- PASSO NOVO: Buscar os dados do utilizador (Role e ID) ---
                 // Assumindo que a API de users permite filtrar por email
-                const userRes = await fetch(`${API_BASE}/users?email=${email}`);
+                const userRes = await fetch(`${API_BASE}/users?email=${email}`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 const usersFound = await userRes.json();
 
                 let userData;

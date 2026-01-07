@@ -7,16 +7,15 @@ import PageWrapper from "../components/PageWrapper";
 import InputField from "../components/forms/InputField";
 import { Send, User, Building } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_BASE, API_PAPI } from '../utils/constants';
+import { API_BASE, API_PAPI, API_UXAPI } from '../utils/constants';
 import { DetailedLoadingState } from '../components/common/LoadingState';
-// 1. Importar o hook de autenticação
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Appointment() {
     const navigate = useNavigate();
     const location = useLocation();
     // 2. Obter o utilizador logado do contexto
-    const { user } = useAuth();
+    const { user, token } = useAuth();
 
     const doctorIdFromState = location.state?.doctorId || null;
 
@@ -162,13 +161,12 @@ export default function Appointment() {
         };
 
         try {
-            const response = await fetch(`${API_PAPI}/appointments`, {
+            const response = await fetch(`${API_UXAPI}/booking/reserve`, {
                 method: 'POST',
                 headers: {
-                    // 4. Importante: Content-Type é necessário para enviar JSON
                     'Content-Type': 'application/json',
-                    client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
-                    client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
+                    'Authorization': `Bearer ${token}`,
+
                 },
                 body: JSON.stringify(appointmentData),
             });
