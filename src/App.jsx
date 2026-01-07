@@ -3,7 +3,6 @@
 import {Route, Routes} from "react-router-dom";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
-
 import './App.css';
 
 import MainLayout from "./layouts/MainLayout";
@@ -42,33 +41,48 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<MainLayout />}>
 
+                    {/* --- ROTAS PÚBLICAS (Acessíveis a qualquer pessoa) --- */}
                     <Route path="/" index element={<Home />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/forum" element={<Forum />} />
+
+                    {/* Autenticação */}
                     <Route path="/auth/login" element={<Login />} />
                     <Route path="/auth/register" element={<Register />} />
                     <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
-
+                    {/* Listagens Públicas */}
                     <Route path="/doctors" element={<Doctors />} />
-                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} />
+                    <Route path="/doctors/:doctorId" element={<DoctorProfile/>} /> {/* O perfil público do médico continua visível */}
                     <Route path="/clinics" element={<Clinics />} />
-                    <Route path="/dashboard-appointments" element={<DashboardAppointments/>} />
-                    <Route path="/appointment" element={<Appointment/>} />
-                    <Route path="/clinic/:clinicId" element={<ClinicDoctors />} />
+                    <Route path="/clinic/:clinicId" element={<ClinicDoctors />} /> {/* Ver detalhes da clínica continua visível */}
+
+
+                    {/* --- ROTAS PROTEGIDAS (Apenas utilizadores autenticados) --- */}
+
+                    {/* Dashboards e Agendamentos */}
+                    <Route path="/dashboard-appointments" element={<ProtectedRoute><DashboardAppointments/></ProtectedRoute>} />
+                    <Route path="/appointment" element={<ProtectedRoute><Appointment/></ProtectedRoute>} />
+
+                    {/* Gestão de Utilizadores e Pacientes */}
                     <Route path="/dashboard-users" element={<ProtectedRoute><DashboardUsers /> </ProtectedRoute>} />
-                    <Route path="/patient/:patientId" element={<PatientProfile/>} />
-                    <Route path="/patient-appointments/:patientId" element={<PatientAppointments/>} />
-                    <Route path="/dashboard-clinic-staff/:managerId" element={<DashboardClinicStaff/>} />
-                    <Route path="/dashboard-clinics" element={<DashboardClinics />} />
-                    <Route path="/dashboard-clinic-appointment/:managerId" element={<DashboardClinicAppointments />} />
-                    <Route path="/dashboard-doctor-appointment/:doctorId" element={<DashboardDoctorAppointment/>} />
-                    <Route path="/create-clinic" element={<CreateClinic />} />
-                    <Route path="/edit-clinic/:clinicId" element={<EditClinic />} />
-                    <Route path="/dashboard-specialties" element={<DashboardSpecialties/>} />
-                    <Route path="/create-specialty" element={<CreateSpecialty />} />
-                    <Route path="/edit-specialty/:specialtyId" element={<EditSpecialty />} />
-                    <Route path="/create-user" element={<CreateUser />} />
+                    <Route path="/patient/:patientId" element={<ProtectedRoute><PatientProfile/></ProtectedRoute>} />
+                    <Route path="/patient-appointments/:patientId" element={<ProtectedRoute><PatientAppointments/></ProtectedRoute>} />
+
+                    {/* Gestão de Clínicas e Staff */}
+                    <Route path="/dashboard-clinic-staff/:managerId" element={<ProtectedRoute><DashboardClinicStaff/></ProtectedRoute>} />
+                    <Route path="/dashboard-clinics" element={<ProtectedRoute><DashboardClinics /></ProtectedRoute>} />
+                    <Route path="/dashboard-clinic-appointment/:managerId" element={<ProtectedRoute><DashboardClinicAppointments /></ProtectedRoute>} />
+                    <Route path="/dashboard-doctor-appointment/:doctorId" element={<ProtectedRoute><DashboardDoctorAppointment/></ProtectedRoute>} />
+
+                    {/* Criação e Edição (Admin/Gestão) */}
+                    <Route path="/create-clinic" element={<ProtectedRoute><CreateClinic /></ProtectedRoute>} />
+                    <Route path="/edit-clinic/:clinicId" element={<ProtectedRoute><EditClinic /></ProtectedRoute>} />
+                    <Route path="/dashboard-specialties" element={<ProtectedRoute><DashboardSpecialties/></ProtectedRoute>} />
+                    <Route path="/create-specialty" element={<ProtectedRoute><CreateSpecialty /></ProtectedRoute>} />
+                    <Route path="/edit-specialty/:specialtyId" element={<ProtectedRoute><EditSpecialty /></ProtectedRoute>} />
+                    <Route path="/create-user" element={<ProtectedRoute><CreateUser /></ProtectedRoute>} />
+
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
