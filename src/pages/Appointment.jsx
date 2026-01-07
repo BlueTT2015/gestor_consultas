@@ -3,15 +3,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import CardHeader from "../components/CardHeader";
+import PageWrapper from "../components/PageWrapper";
 import InputField from "../components/forms/InputField";
 import { Send, User, Building } from 'lucide-react';
 import { colors } from "../config/colors";
 import { API_BASE, API_PAPI } from '../utils/constants';
 import { DetailedLoadingState } from '../components/common/LoadingState';
+// 1. Importar o hook de autenticação
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Appointment() {
     const navigate = useNavigate();
     const location = useLocation();
+    // 2. Obter o utilizador logado do contexto
+    const { user } = useAuth();
 
     const doctorIdFromState = location.state?.doctorId || null;
 
@@ -38,19 +43,39 @@ export default function Appointment() {
             setLoading(true);
 
             try {
-                const doctorsRes = await fetch(`${API_BASE}/doctors`);
+                // Fetch Doctor Info
+                const doctorsRes = await fetch(`${API_BASE}/doctors`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 const doctorsList = await doctorsRes.json();
                 const doctor = doctorsList.find(d => String(d.doctor_id) === String(doctorIdFromState));
 
                 if (doctor) {
-                    const usersRes = await fetch(`${API_BASE}/users`);
+                    const usersRes = await fetch(`${API_BASE}/users`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    });
                     const usersData = await usersRes.json();
-                    const user = usersData.find(u => u.user_id === doctor.user_id && u.role === "doctor");
+                    const userDoctor = usersData.find(u => u.user_id === doctor.user_id && u.role === "doctor");
 
-                    setDoctorName(user ? `Dr. ${user.first_name} ${user.last_name}` : `Médico #${doctor.doctor_id}`);
+                    setDoctorName(userDoctor ? `Dr. ${userDoctor.first_name} ${userDoctor.last_name}` : `Médico #${doctor.doctor_id}`);
                 }
 
-                const docClinicsRes = await fetch(`${API_BASE}/doctors-clinics`);
+                // Fetch Clinics associated with the doctor
+                const docClinicsRes = await fetch(`${API_BASE}/doctors-clinics`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!docClinicsRes.ok) throw new Error("Falha ao carregar associações médico-clínica.");
                 const docClinicsData = await docClinicsRes.json();
 
@@ -58,7 +83,14 @@ export default function Appointment() {
                     .filter(dc => String(dc.doctor_id) === String(doctorIdFromState))
                     .map(dc => dc.clinic_id);
 
-                const clinicsRes = await fetch(`${API_BASE}/clinics`);
+                // Fetch All Clinics details
+                const clinicsRes = await fetch(`${API_BASE}/clinics`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!clinicsRes.ok) throw new Error("Falha ao carregar lista de clínicas.");
                 const allClinics = await clinicsRes.json();
 
@@ -66,6 +98,7 @@ export default function Appointment() {
 
                 setAssociatedClinics(filteredClinics);
 
+                // Auto-select if only one clinic
                 if (filteredClinics.length === 1) {
                     setFormData(prev => ({ ...prev, clinic_id: filteredClinics[0].clinic_id }));
                 }
@@ -105,18 +138,26 @@ export default function Appointment() {
             return;
         }
 
+        // Validação de segurança: garantir que temos um utilizador
+        if (!user || !user.user_id) {
+            setMessage("Erro de autenticação: Não foi possível identificar o utilizador logado.");
+            setIsError(true);
+            return;
+        }
+
         setLoading(true);
         setMessage(null);
         setIsError(false);
 
         const appointmentData = {
             clinic_id: parseInt(formData.clinic_id),
-            patient_id: 1, // Paciente hardcoded
+            // 3. Usar o ID do utilizador logado em vez de '1'
+            patient_id: parseInt(user.user_id),
             doctor_id: parseInt(formData.doctor_id),
             date: formData.date || "",
             time: formData.time || "",
             duration: 30, // Default 30 minutos
-            status: formData.status || "scheduled", // Default "scheduled"
+            status: formData.status || "scheduled",
             reason: formData.reason || "",
         };
 
@@ -124,7 +165,10 @@ export default function Appointment() {
             const response = await fetch(`${API_PAPI}/appointments`, {
                 method: 'POST',
                 headers: {
+                    // 4. Importante: Content-Type é necessário para enviar JSON
                     'Content-Type': 'application/json',
+                    client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
                 },
                 body: JSON.stringify(appointmentData),
             });
@@ -135,7 +179,7 @@ export default function Appointment() {
                     const errorData = await response.json();
                     errorDetails = errorData.message || errorDetails;
                 } catch (e) {
-                    // Ignora se não conseguir parsear JSON
+                    // Ignora
                 }
                 throw new Error(errorDetails);
             }
@@ -160,11 +204,12 @@ export default function Appointment() {
         }
     };
 
+    // Estado de Erro: Sem ID do médico
     if (!doctorIdFromState) {
         return (
-            <div className="min-h-screen py-10" style={{ backgroundColor: colors.background }}>
-                <Card variant="error" className="max-w-md mx-auto my-10">
-                    <CardBody className="text-center">
+            <PageWrapper>
+                <Card variant="error" className="max-w-md mx-auto text-center">
+                    <CardBody>
                         <h2 className="text-xl font-bold mb-2">Médico Não Selecionado</h2>
                         <p>Por favor, selecione um médico na página de perfis antes de agendar uma consulta.</p>
                         <button
@@ -176,156 +221,155 @@ export default function Appointment() {
                         </button>
                     </CardBody>
                 </Card>
-            </div>
+            </PageWrapper>
         );
     }
 
+    // Estado de Carregamento Inicial
     if (loading && associatedClinics.length === 0) {
         return <DetailedLoadingState message="A carregar clínicas associadas..." />;
     }
 
+    // Renderização Principal
     return (
-        <div className="min-h-screen py-10" style={{ backgroundColor: colors.background }}>
-            <div className="max-w-3xl mx-auto px-4">
+        <PageWrapper maxWidth="max-w-3xl">
+            <h1 className="text-4xl font-bold text-center" style={{ color: colors.secondary }}>
+                Marcar Nova Consulta
+            </h1>
 
-                <h1 className="text-4xl font-bold mb-6 text-center" style={{ color: colors.secondary }}>
-                    Marcar Nova Consulta
-                </h1>
+            <Card>
+                <CardHeader spacing="medium" borderBottom>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>
+                            Dados do Agendamento
+                        </h2>
+                    </div>
+                </CardHeader>
 
-                <Card>
-                    <CardHeader spacing="medium" borderBottom>
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-semibold" style={{ color: colors.primary }}>
-                                Agendamento
-                            </h2>
+                <CardBody>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+
+                        {/* Informação do Médico */}
+                        <div className="p-4 rounded-xl border border-gray-100 bg-gray-50">
+                            <p className="font-medium text-gray-600 mb-1">Médico:</p>
+                            <div className="flex items-center gap-3">
+                                <User size={20} className="text-blue-500" />
+                                <span className="text-lg font-bold" style={{ color: colors.secondary }}>
+                                    {doctorName}
+                                </span>
+                            </div>
+                            <input type="hidden" name="doctor_id" value={formData.doctor_id} />
                         </div>
-                    </CardHeader>
 
-                    <CardBody>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-
-                            <div className="p-4 rounded-xl border border-gray-100 bg-gray-50">
-                                <p className="font-medium text-gray-600 mb-1">Médico:</p>
-                                <div className="flex items-center gap-3">
-                                    <User size={20} className="text-blue-500" />
-                                    <span className="text-lg font-bold" style={{ color: colors.secondary }}>
-                                        {doctorName}
-                                    </span>
-                                </div>
-                                <input
-                                    type="hidden"
-                                    name="doctor_id"
-                                    value={formData.doctor_id}
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="clinic_id" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Clínica *
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        id="clinic_id"
-                                        name="clinic_id"
-                                        value={formData.clinic_id}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full p-3 border rounded-lg focus:ring-2 appearance-none"
-                                        style={{ borderColor: colors.accent2 }}
-                                        disabled={associatedClinics.length === 0}
-                                    >
-                                        <option value="">
-                                            {associatedClinics.length > 0 ? "Selecione a Clínica" : "A carregar clínicas..."}
-                                        </option>
-                                        {associatedClinics.map(clinic => (
-                                            <option key={clinic.clinic_id} value={clinic.clinic_id}>{clinic.name}</option>
-                                        ))}
-                                    </select>
-                                    <Building size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                </div>
-                                {associatedClinics.length === 0 && !loading && (
-                                    <p className="text-xs text-red-500 mt-1">Nenhuma clínica associada encontrada para este médico.</p>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <InputField
-                                    id="date"
-                                    name="date" // Adicionado name
-                                    label="Data"
-                                    type="date"
-                                    value={formData.date}
+                        {/* Seleção de Clínica */}
+                        <div>
+                            <label htmlFor="clinic_id" className="block text-sm font-medium text-gray-700 mb-1">
+                                Clínica *
+                            </label>
+                            <div className="relative">
+                                <select
+                                    id="clinic_id"
+                                    name="clinic_id"
+                                    value={formData.clinic_id}
                                     onChange={handleChange}
                                     required
-                                    min={new Date().toISOString().split('T')[0]}
-                                />
-                                <InputField
-                                    id="time"
-                                    name="time" // Adicionado name
-                                    label="Hora"
-                                    type="time"
-                                    value={formData.time}
-                                    onChange={handleChange}
-                                    required
-                                    step="1"
-                                />
-                            </div>
-
-                            {/* Usando textarea diretamente pois InputField não suporta textarea */}
-                            <div className="space-y-2">
-                                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
-                                    Motivo da Consulta *
-                                </label>
-                                <textarea
-                                    id="reason"
-                                    name="reason" // Adicionado name
-                                    value={formData.reason}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Descreva brevemente o motivo da sua consulta..."
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px]"
-                                />
-                            </div>
-
-                            {message && (
-                                <Card
-                                    variant={isError ? 'error' : 'success'}
-                                    padding="small"
-                                    className="text-center"
+                                    className="w-full p-3 border rounded-lg focus:ring-2 appearance-none"
+                                    style={{ borderColor: colors.accent2 }}
+                                    disabled={associatedClinics.length === 0}
                                 >
-                                    {message}
-                                </Card>
+                                    <option value="">
+                                        {associatedClinics.length > 0 ? "Selecione a Clínica" : "A carregar clínicas..."}
+                                    </option>
+                                    {associatedClinics.map(clinic => (
+                                        <option key={clinic.clinic_id} value={clinic.clinic_id}>{clinic.name}</option>
+                                    ))}
+                                </select>
+                                <Building size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            </div>
+                            {associatedClinics.length === 0 && !loading && (
+                                <p className="text-xs text-red-500 mt-1">Nenhuma clínica associada encontrada para este médico.</p>
                             )}
+                        </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading || associatedClinics.length === 0}
-                                className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-lg font-semibold transition-colors shadow-md"
-                                style={{
-                                    backgroundColor: (loading || associatedClinics.length === 0) ? '#9CA3AF' : colors.secondary,
-                                    color: colors.white,
-                                    cursor: (loading || associatedClinics.length === 0) ? 'not-allowed' : 'pointer'
-                                }}
-                                onMouseEnter={(e) => !(loading || associatedClinics.length === 0) && (e.currentTarget.style.backgroundColor = '#1e109d')}
-                                onMouseLeave={(e) => !(loading || associatedClinics.length === 0) && (e.currentTarget.style.backgroundColor = colors.secondary)}
+                        {/* Data e Hora */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <InputField
+                                id="date"
+                                name="date"
+                                label="Data"
+                                type="date"
+                                value={formData.date}
+                                onChange={handleChange}
+                                required
+                                min={new Date().toISOString().split('T')[0]}
+                            />
+                            <InputField
+                                id="time"
+                                name="time"
+                                label="Hora"
+                                type="time"
+                                value={formData.time}
+                                onChange={handleChange}
+                                required
+                                step="1"
+                            />
+                        </div>
+
+                        {/* Motivo */}
+                        <div className="space-y-2">
+                            <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                                Motivo da Consulta *
+                            </label>
+                            <textarea
+                                id="reason"
+                                name="reason"
+                                value={formData.reason}
+                                onChange={handleChange}
+                                required
+                                placeholder="Descreva brevemente o motivo da sua consulta..."
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px]"
+                            />
+                        </div>
+
+                        {/* Mensagens de Feedback */}
+                        {message && (
+                            <Card
+                                variant={isError ? 'error' : 'success'}
+                                padding="small"
+                                className="text-center"
                             >
-                                {loading ? 'A Agendar...' : <><Send size={20} /> Agendar Consulta</>}
-                            </button>
-                        </form>
-                    </CardBody>
-                </Card>
+                                {message}
+                            </Card>
+                        )}
 
-                <div className="mt-8 text-center">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="text-sm font-medium px-4 py-2 rounded-lg"
-                        style={{ color: colors.secondary, backgroundColor: colors.white }}
-                    >
-                        Cancelar e Voltar
-                    </button>
-                </div>
+                        {/* Botão de Submissão */}
+                        <button
+                            type="submit"
+                            disabled={loading || associatedClinics.length === 0}
+                            className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-lg font-semibold transition-colors shadow-md"
+                            style={{
+                                backgroundColor: (loading || associatedClinics.length === 0) ? '#9CA3AF' : colors.secondary,
+                                color: colors.white,
+                                cursor: (loading || associatedClinics.length === 0) ? 'not-allowed' : 'pointer'
+                            }}
+                            onMouseEnter={(e) => !(loading || associatedClinics.length === 0) && (e.currentTarget.style.backgroundColor = '#1e109d')}
+                            onMouseLeave={(e) => !(loading || associatedClinics.length === 0) && (e.currentTarget.style.backgroundColor = colors.secondary)}
+                        >
+                            {loading ? 'A Agendar...' : <><Send size={20} /> Agendar Consulta</>}
+                        </button>
+                    </form>
+                </CardBody>
+            </Card>
 
+            <div className="text-center">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="text-sm font-medium px-4 py-2 rounded-lg hover:underline"
+                    style={{ color: colors.secondary }}
+                >
+                    Cancelar e Voltar
+                </button>
             </div>
-        </div>
+        </PageWrapper>
     );
 }
