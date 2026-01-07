@@ -19,7 +19,13 @@ export default function DoctorProfile() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const doctorsRes = await fetch(`${API_BASE}/doctors`);
+                const doctorsRes = await fetch(`${API_BASE}/doctors`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!doctorsRes.ok) throw new Error("Falha ao carregar lista de médicos");
                 const doctorsList = await doctorsRes.json();
                 const doctor = doctorsList.find(d => String(d.doctor_id) === doctorId);
@@ -33,7 +39,13 @@ export default function DoctorProfile() {
                     throw new Error("Este médico está inativo no sistema e não pode ser visualizado.");
                 }
 
-                const usersRes = await fetch(`${API_BASE}/users`);
+                const usersRes = await fetch(`${API_BASE}/users`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!usersRes.ok) throw new Error("Falha ao carregar usuários");
                 const usersData = await usersRes.json();
                 const user = usersData.find(u => u.user_id === doctor.user_id && u.role === "doctor");
@@ -47,7 +59,13 @@ export default function DoctorProfile() {
                 ];
                 const specialtiesMap = new Map(mockSpecialties.map(s => [s.specialty_id, s.name]));
 
-                const docSpecialtiesRes = await fetch(`${API_BASE}/doctors-specialties`);
+                const docSpecialtiesRes = await fetch(`${API_BASE}/doctors-specialties`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!docSpecialtiesRes.ok) throw new Error("Falha ao carregar especialidades dos médicos");
                 const docSpecialtiesData = await docSpecialtiesRes.json();
 

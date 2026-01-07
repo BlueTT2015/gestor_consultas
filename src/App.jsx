@@ -65,20 +65,20 @@ export default function App() {
                     <Route path="/appointment" element={<ProtectedRoute><Appointment/></ProtectedRoute>} />
 
                     {/* Gestão de Utilizadores e Pacientes */}
-                    <Route path="/dashboard-users" element={<ProtectedRoute><DashboardUsers /> </ProtectedRoute>} />
+                    <Route path="/dashboard-users" element={<ProtectedRoute><DashboardUsers /> </ProtectedRoute>} /> {/* Delete funciona */}
                     <Route path="/patient/:patientId" element={<ProtectedRoute><PatientProfile/></ProtectedRoute>} />
                     <Route path="/patient-appointments/:patientId" element={<ProtectedRoute><PatientAppointments/></ProtectedRoute>} />
 
                     {/* Gestão de Clínicas e Staff */}
                     <Route path="/dashboard-clinic-staff/:managerId" element={<ProtectedRoute><DashboardClinicStaff/></ProtectedRoute>} />
                     <Route path="/dashboard-clinics" element={<ProtectedRoute><DashboardClinics /></ProtectedRoute>} />
-                    <Route path="/dashboard-clinic-appointment/:managerId" element={<ProtectedRoute><DashboardClinicAppointments /></ProtectedRoute>} />
+                    <Route path="/dashboard-clinic-appointment/:managerId" element={<ProtectedRoute><DashboardClinicAppointments /></ProtectedRoute>} /> {/* Não dá para dar delete*/}
                     <Route path="/dashboard-doctor-appointment/:doctorId" element={<ProtectedRoute><DashboardDoctorAppointment/></ProtectedRoute>} />
 
                     {/* Criação e Edição (Admin/Gestão) */}
                     <Route path="/create-clinic" element={<ProtectedRoute><CreateClinic /></ProtectedRoute>} />
                     <Route path="/edit-clinic/:clinicId" element={<ProtectedRoute><EditClinic /></ProtectedRoute>} />
-                    <Route path="/dashboard-specialties" element={<ProtectedRoute><DashboardSpecialties/></ProtectedRoute>} />
+                    <Route path="/dashboard-specialties" element={<ProtectedRoute><DashboardSpecialties/></ProtectedRoute>} /> {/*DELETE funciona*/}
                     <Route path="/create-specialty" element={<ProtectedRoute><CreateSpecialty /></ProtectedRoute>} />
                     <Route path="/edit-specialty/:specialtyId" element={<ProtectedRoute><EditSpecialty /></ProtectedRoute>} />
                     <Route path="/create-user" element={<ProtectedRoute><CreateUser /></ProtectedRoute>} />

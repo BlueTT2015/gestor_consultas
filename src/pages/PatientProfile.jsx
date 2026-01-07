@@ -32,7 +32,13 @@ export default function PatientProfile() {
             try {
                 setLoading(true);
 
-                const patientsRes = await fetch(`${API_BASE}/patients`);
+                const patientsRes = await fetch(`${API_BASE}/patients`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!patientsRes.ok) throw new Error("Falha ao carregar lista de pacientes");
                 const patientsList = await patientsRes.json();
                 const patient = patientsList.find(p => String(p.patient_id) === patientId);
@@ -41,7 +47,13 @@ export default function PatientProfile() {
                     throw new Error(`Paciente com ID ${patientId} não encontrado.`);
                 }
 
-                const usersRes = await fetch(`${API_BASE}/users`);
+                const usersRes = await fetch(`${API_BASE}/users`, {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!usersRes.ok) throw new Error("Falha ao carregar usuários");
                 const usersData = await usersRes.json();
                 const user = usersData.find(u => u.user_id === patient.user_id);

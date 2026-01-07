@@ -23,9 +23,6 @@ export default function DashboardClinicStaff() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- VERIFICAÇÃO DE PERMISSÕES ---
-    // Impede que um gestor veja os dados de outro gestor mudando o ID no URL
-    // Nota: O user.user_id deve corresponder ao managerId passado na rota.
     if (user && user.role !== 'admin' && String(user.user_id) !== String(managerId)) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -65,12 +62,48 @@ export default function DashboardClinicStaff() {
                     assistantsRes,
                     usersRes,
                 ] = await Promise.all([
-                    fetch(`${API_BASE}/clinic-managers`),
-                    fetch(`${API_BASE}/clinics`),
-                    fetch(`${API_BASE}/doctors-clinics`),
-                    fetch(`${API_BASE}/doctors`),
-                    fetch(`${API_BASE}/assistants`),
-                    fetch(`${API_BASE}/users`),
+                    fetch(`${API_BASE}/clinic-managers`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/clinics`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/doctors-clinics`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/doctors`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/assistants`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
+                    fetch(`${API_BASE}/users`, {
+                        method: "GET",
+                        headers: {
+                            client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                            client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                        }
+                    }),
                 ]);
 
                 if (!managersRes.ok || !clinicsRes.ok || !doctorsClinicsRes.ok || !doctorsRes.ok || !assistantsRes.ok || !usersRes.ok) {

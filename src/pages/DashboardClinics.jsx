@@ -27,7 +27,13 @@ export default function DashboardClinics() {
             setLoading(true);
             setDeleteMessage(null);
 
-            const response = await fetch(`${API_BASE}/clinics`);
+            const response = await fetch(`${API_BASE}/clinics`, {
+                method: "GET",
+                headers: {
+                    client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                }
+            });
 
             if (!response.ok) throw new Error("Falha ao carregar lista de Clínicas");
 
@@ -68,6 +74,10 @@ export default function DashboardClinics() {
         try {
             const response = await fetch(`${API_PAPI}/clinics/${clinicId}`, {
                 method: 'DELETE',
+                headers: {
+                    client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
+                }
             });
 
             if (!response.ok) {

@@ -26,11 +26,23 @@ export default function Doctors() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const doctorsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors");
+                const doctorsRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/doctors", {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!doctorsRes.ok) throw new Error("Falha ao carregar médicos");
                 const doctorsData = await doctorsRes.json();
 
-                const usersRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users");
+                const usersRes = await fetch("https://db-sapi-i6d0cd.5sc6y6-4.usa-e2.cloudhub.io/api/users", {
+                    method: "GET",
+                    headers: {
+                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
+                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
+                    }
+                });
                 if (!usersRes.ok) throw new Error("Falha ao carregar usuários");
                 const usersData = await usersRes.json();
 

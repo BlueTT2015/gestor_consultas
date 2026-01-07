@@ -27,7 +27,13 @@ export default function DashboardUsers() {
             setLoading(true);
             setDeleteMessage(null);
 
-            const response = await fetch(`${API_PAPI}/users`);
+            const response = await fetch(`${API_PAPI}/users`, {
+                method: "GET",
+                headers: {
+                    client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
+                }
+            });
 
             if (!response.ok) throw new Error("Falha ao carregar lista de Utilizadores");
 
@@ -72,6 +78,10 @@ export default function DashboardUsers() {
         try {
             const response = await fetch(`${API_PAPI}/users/${userId}`, {
                 method: 'DELETE',
+                headers: {
+                    client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
+                }
             });
 
             if (!response.ok) {
