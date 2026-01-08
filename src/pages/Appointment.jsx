@@ -148,16 +148,18 @@ export default function Appointment() {
         setMessage(null);
         setIsError(false);
 
+        // Mapeamento para a estrutura exigida pela UXAPI
         const appointmentData = {
-            clinic_id: parseInt(formData.clinic_id),
-            // 3. Usar o ID do utilizador logado em vez de '1'
-            patient_id: parseInt(user.user_id),
-            doctor_id: parseInt(formData.doctor_id),
+            id: 0, // Placeholder, normalmente gerado pelo servidor
+            patientId: parseInt(user.user_id),
+            doctorId: parseInt(formData.doctor_id),
+            clinicId: parseInt(formData.clinic_id),
+            slotId: 0, // Placeholder, sem sistema de slots implementado
             date: formData.date || "",
-            time: formData.time || "",
-            duration: 30, // Default 30 minutos
-            status: formData.status || "scheduled",
+            time: formData.time ? (formData.time.length === 5 ? `${formData.time}:00` : formData.time) : "",
+            status: "confirmed", // Conforme solicitado no exemplo
             reason: formData.reason || "",
+            createdAt: new Date().toISOString()
         };
 
         try {
@@ -183,7 +185,7 @@ export default function Appointment() {
             }
 
             const result = await response.json();
-            setMessage(`Consulta agendada com sucesso! ID da Consulta: ${result.appointment_id || 'N/A'}`);
+            setMessage(`Consulta agendada com sucesso!`);
             setIsError(false);
 
             setFormData(prev => ({

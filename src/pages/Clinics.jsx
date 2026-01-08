@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MapPin, Phone, Mail, Building, Navigation, Users } from 'lucide-react';
+import { API_BASE, API_PAPI, API_UXAPI } from '../utils/constants';
 import Card from "../components/Card";
 import CardBody from "../components/CardBody";
 import {useNavigate} from "react-router-dom";
@@ -26,12 +27,8 @@ export default function Clinics() {
     useEffect(() => {
         const fetchClinics = async () => {
             try {
-                const response = await fetch("https://es-papi-i6d0cd.5sc6y6-2.usa-e2.cloudhub.io/api/clinics", {
-                    method: "GET",
-                    headers: {
-                        client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
-                        client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET
-                    }
+                const response = await fetch(`${API_UXAPI}/clinics`, {
+                    method: "GET"
                 });
                 if (!response.ok) throw new Error("Falha ao carregar clínicas");
                 const data = await response.json();

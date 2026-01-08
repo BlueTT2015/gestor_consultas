@@ -29,7 +29,7 @@ export default function Header() {
     // --- ADIÇÃO: Lógica para obter o nome do cargo ---
     const displayRole = user?.role ? (roleLabels[user.role] || user.role) : '';
     // ----------------------------------------------------
-    console.log(user)
+    console.log("user: ", user);
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
