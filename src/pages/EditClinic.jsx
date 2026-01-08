@@ -9,7 +9,7 @@ import InputField from "../components/forms/InputField";
 import PageWrapper from "../components/PageWrapper";
 import { Building, MapPin, Mail, Phone, ArrowLeft, Pencil } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_BASE, API_PAPI } from '../utils/constants';
+import { API_BASE, API_PAPI, API_UXAPI } from '../utils/constants';
 import { DetailedLoadingState, ErrorMessage } from '../components/common/LoadingState';
 
 export default function EditClinic() {
@@ -46,7 +46,7 @@ export default function EditClinic() {
         const fetchClinicData = async () => {
             try {
                 // Fetch de todas as clínicas para encontrar a clínica específica (usando API_BASE para GET)
-                const response = await fetch(`${API_BASE}/clinics`);
+                const response = await fetch(`${API_UXAPI}/clinic`);
                 if (!response.ok) throw new Error("Falha ao carregar a lista de clínicas.");
                 const clinicsData = await response.json();
 
@@ -128,7 +128,7 @@ export default function EditClinic() {
 
         try {
             // Requisição PUT para o endpoint PAPI, usando o ID na URL
-            const response = await fetch(`${API_BASE}/clinics/${numericClinicId}`, {
+            const response = await fetch(`${API_UXAPI}/clinic/${numericClinicId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -27,7 +27,7 @@ export default function Clinics() {
     useEffect(() => {
         const fetchClinics = async () => {
             try {
-                const response = await fetch(`${API_UXAPI}/clinics`, {
+                const response = await fetch(`${API_UXAPI}/clinic`, {
                     method: "GET"
                 });
                 if (!response.ok) throw new Error("Falha ao carregar clínicas");
@@ -67,7 +67,6 @@ export default function Clinics() {
     };
 
     const handleClinicClick = (clinic) => {
-        console.log('Clínica clicada:', clinic);
         navigate(`/clinic/${clinic.clinic_id}`);
     };
 

@@ -7,7 +7,7 @@ import InputField from "../components/forms/InputField";
 import PageWrapper from "../components/PageWrapper";
 import { Send, Building, MapPin, Mail, Phone, ClipboardCheck, ArrowLeft } from 'lucide-react';
 import { colors } from "../config/colors";
-import { API_PAPI } from '../utils/constants';
+import {API_PAPI, API_UXAPI} from '../utils/constants';
 import { DetailedLoadingState, ErrorMessage } from '../components/common/LoadingState';
 
 export default function CreateClinic() {
@@ -71,8 +71,9 @@ export default function CreateClinic() {
         };
 
         try {
-            const response = await fetch(`${API_PAPI}/clinics`, {
+            const response = await fetch(`${API_UXAPI}/clinic`, {
                 method: 'POST',
+                'Content-Type': 'application/json',
                 headers: {
                     client_id: import.meta.env.VITE_PAPI_CLIENT_ID,
                     client_secret: import.meta.env.VITE_PAPI_CLIENT_SECRET

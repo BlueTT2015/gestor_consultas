@@ -105,7 +105,6 @@ export default function Doctors() {
     };
 
     const handleDoctorClick = (doctor) => {
-        console.log('Médico clicado:', doctor);
         // Navega para o novo perfil
         navigate(`/doctors/${doctor.doctor_id}`);
     };

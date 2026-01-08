@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-        console.log(storedUser);
         if (storedToken && storedUser) {
             setToken(storedToken);
             setUser(JSON.parse(storedUser));
@@ -29,35 +28,12 @@ export const AuthProvider = ({ children }) => {
 
             if (response && response.accessToken) {
                 const accessToken = response.accessToken;
-
-                // --- PASSO NOVO: Buscar os dados do utilizador (Role e ID) ---
-                // Assumindo que a API de users permite filtrar por email
-                const userRes = await fetch(`${API_BASE}/users?email=${email}`, {
-                    method: "GET",
-                    headers: {
-                        client_id: import.meta.env.VITE_SAPI_CLIENT_ID,
-                        client_secret: import.meta.env.VITE_SAPI_CLIENT_SECRET
-                    }
-                });
-                const usersFound = await userRes.json();
-
-                let userData;
-
-                if (usersFound && usersFound.length > 0) {
-                    // Utilizador encontrado na BD
-                    userData = usersFound[0];
-                    // userData deve ter: { user_id, role, first_name, etc... }
-                } else {
-                    // Fallback se a API não encontrar (apenas para evitar crash)
-                    userData = { email: email, role: 'patient' };
-                }
-
                 // Guardar tudo
                 localStorage.setItem('token', accessToken);
-                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('user', JSON.stringify(response.user));
 
                 setToken(accessToken);
-                setUser(userData);
+                setUser(response.user);
 
                 return { success: true };
             } else {
